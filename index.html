@@ -213,7 +213,7 @@
         <p>
           Donations are optional, but they help support development time, testing, and future features.
         </p>
-        <a class="donate-button" href="https://ko-fi.com/REPLACE_ME" target="_blank" rel="noopener noreferrer">Donate</a>
+        <a class="donate-button" href="https://ko-fi.com/dadzerdous" target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
     </section>
 
@@ -223,7 +223,7 @@
   </main>
 
   <script>
-    const SCRIPT_URL = "REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
 
     const form = document.getElementById("alphaForm");
     const emailInput = document.getElementById("email");
@@ -237,7 +237,7 @@
       const email = emailInput.value.trim();
       const name = nameInput.value.trim();
 
-      if (!SCRIPT_URL || SCRIPT_URL.includes("REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL")) {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec")) {
         formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
         formMessage.className = "message bad";
         return;
