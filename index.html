@@ -1,230 +1,305 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Evolution Side-Scroller | SingleFrameGames 0.0.03</title>
-    <style>
-        body { margin: 0; background: #111; color: white; font-family: 'Courier New', monospace; overflow: hidden; }
-        canvas { display: block; background: linear-gradient(#001, #003); }
-        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 10; }
-        .hud { position: absolute; top: 20px; left: 20px; color: #0ff; font-size: 20px; pointer-events: none; }
-        .btn { background: none; border: 2px solid #0ff; color: #0ff; padding: 15px 30px; margin: 10px; cursor: pointer; font-size: 1.1rem; width: 280px; }
-        .btn:hover { background: #0ff; color: #000; box-shadow: 0 0 15px #0ff; }
-        #shop { display: none; text-align: center; }
-        footer { position: absolute; bottom: 15px; font-size: 0.8rem; }
-        footer a { color: #0ff; text-decoration: none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pass-Libs Alpha | Single Frame Games</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #1f2847 0%, #111827 100%);
+      color: #f3f4f6;
+      line-height: 1.5;
+    }
+    a { color: #93c5fd; }
+    .wrap {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      padding: 72px 0 40px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1;
+    }
+    .sub {
+      max-width: 700px;
+      margin: 0 auto 28px;
+      font-size: clamp(18px, 2.5vw, 22px);
+      color: #d1d5db;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+    }
+    .signup {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px;
+      text-align: left;
+    }
+    .signup h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    .signup p {
+      margin-top: 0;
+      color: #d1d5db;
+    }
+    form {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(17,24,39,0.7);
+      color: #fff;
+      font-size: 16px;
+    }
+    input::placeholder { color: #9ca3af; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #60a5fa;
+      color: #0f172a;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .message {
+      min-height: 24px;
+      font-size: 14px;
+      margin-top: 6px;
+    }
+    .good { color: #86efac; }
+    .bad { color: #fca5a5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      padding: 40px 0;
+    }
+    .panel {
+      padding: 22px;
+    }
+    .panel h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 21px;
+    }
+    .panel p,
+    .panel li {
+      color: #d1d5db;
+    }
+    ul {
+      padding-left: 18px;
+      margin-bottom: 0;
+    }
+    .footer {
+      padding: 20px 0 56px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+    .donate-button {
+      display: inline-block;
+      text-decoration: none;
+      background: #f59e0b;
+      color: #111827;
+      font-weight: bold;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 8px;
+    }
+    .small {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+  </style>
+  <!-- Meta Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+
+  fbq('init', '119211728144504');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+       src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID_HERE&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="badge">SingleFrameGames Alpha Test</div>
+      <h1>Pass-Libs</h1>
+      <p class="sub">
+        Join the early alpha for a community-driven word game where players help build ridiculous stories together.
+      </p>
 
-<div id="hud" class="hud" style="display:none;">Tokens: <span id="tokenCount">0</span> | Speed: <span id="speedVal">1</span></div>
+      <div class="card signup">
+        <h2>Join the Alpha</h2>
+        <p>
+          Sign up to get updates, test invites, and a chance to help shape Pass-Libs before wider release.
+        </p>
 
-<div id="ui">
-    <div id="menu">
-        <h1 style="color:#0ff; text-shadow: 0 0 10px #0ff;">EVOLUTION SIDE-SCROLLER</h1>
-        <button class="btn" onclick="initGame()">NEW GAME</button>
-        <button class="btn" onclick="alert('No save found')">CONTINUE</button>
-        <button class="btn" onclick="location.reload()">RESET</button>
-        <footer>SINGLEFRAMEGAMES | <a href="mailto:singleframegames@gmail.com">SINGLEFRAMEGAMES@GMAIL.COM</a></footer>
-    </div>
+        <form id="alphaForm">
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
 
-    <div id="shop">
-        <h2 style="color:red;">WIPE OUT</h2>
-        <p id="totalTokens">Tokens: 0</p>
-        <button class="btn" onclick="upgradeSpeed()">+ SPEED (5 Tokens)</button>
-        <button id="legBtn" class="btn" onclick="upgradeLegs()">EVOLVE LEGS (20 Tokens)</button>
-        <br>
-        <button class="btn" style="border-color:#fff; color:#fff;" onclick="initGame()">RUN AGAIN</button>
-    </div>
+          <div>
+            <label for="name">Name or handle (optional)</label>
+            <input id="name" name="name" type="text" placeholder="Your name or gamer tag" maxlength="50" />
+          </div>
+
+          <button id="submitBtn" type="submit">Join Alpha</button>
+          <div id="formMessage" class="message"></div>
+        </form>
+
+        <p class="small">
+          By joining, you agree to receive alpha test updates for Pass-Libs. You can stop participating anytime.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card panel">
+        <h3>What is Pass-Libs?</h3>
+        <p>
+          Pass-Libs is a playful, community-focused word game inspired by Mad Libs, built for laughs, creativity, and weird combinations that only real players would come up with.
+        </p>
+      </div>
+
+      <div class="card panel">
+        <h3>Why join early?</h3>
+        <ul>
+          <li>Get early access before public release</li>
+          <li>Help shape the features and direction</li>
+          <li>Be part of the first testing group</li>
+          <li>See the game grow from the start</li>
+        </ul>
+      </div>
+
+      <div class="card panel">
+        <h3>About SingleFrameGames</h3>
+        <p>
+          SingleFrameGames is an indie game project focused on building creative, experimental, and community-driven games one step at a time.
+        </p>
+      </div>
+
+      <div class="card panel">
+        <h3>Support development</h3>
+        <p>
+          Donations are optional, but they help support development time, testing, and future features.
+        </p>
+        <a class="donate-button" href="https://ko-fi.com/singleframegames" target="_blank" rel="noopener noreferrer">Donate</a>
+      </div>
+    </section>
+
+<div class="footer">
+  Built by <a href="mailto:singleframegames@gmail.com">SingleFrameGames</a>
+ 
 </div>
-
-<canvas id="gameCanvas"></canvas>
+  </main>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    let tokens = 0;
-    let speedLevel = 1;
-    let hasLegs = false;
-    let gameActive = false;
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
 
-    // Player Object
-    const player = {
-        x: 100, y: 0, r: 20,
-        vx: 0, vy: 0,
-        rotation: 0,
-        grounded: false
-    };
+  const form = document.getElementById("alphaForm");
+  const emailInput = document.getElementById("email");
+  const nameInput = document.getElementById("name");
+  const submitBtn = document.getElementById("submitBtn");
+  const formMessage = document.getElementById("formMessage");
 
-    let platforms = [];
-    let collectibles = [];
-    let cameraX = 0;
-    const gravity = 0.5;
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.onresize = resize;
-    resize();
+    const email = emailInput.value.trim();
+    const name = nameInput.value.trim();
 
-    function initGame() {
-        document.getElementById('ui').style.display = 'none';
-        document.getElementById('menu').style.display = 'none';
-        document.getElementById('shop').style.display = 'none';
-        document.getElementById('hud').style.display = 'block';
-        
-        player.y = canvas.height / 2;
-        player.vx = 2 + (speedLevel * 0.5);
-        player.vy = 0;
-        cameraX = 0;
-        platforms = [];
-        collectibles = [];
-        
-        // Initial Floor
-        for(let i=0; i<5; i++) spawnPlatform(i * 400);
-        
-        gameActive = true;
-        requestAnimationFrame(gameLoop);
+    if (!SCRIPT_URL || SCRIPT_URL.includes("REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL")) {
+      formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
+      formMessage.className = "message bad";
+      return;
     }
 
-    function spawnPlatform(x) {
-        const width = 300 + Math.random() * 200;
-        const y = canvas.height - 100 - (Math.random() * 150);
-        const isRamp = Math.random() > 0.7;
-        
-        platforms.push({ x, y, w: width, h: 50, isRamp });
-        
-        // Spawn Token
-        collectibles.push({ x: x + width/2, y: y - 50, gathered: false });
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Joining...";
+    formMessage.textContent = "";
+    formMessage.className = "message";
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          source: "Pass-Libs Landing Page"
+        })
+      });
+
+      const text = await response.text();
+
+      if (!response.ok) {
+        throw new Error(text || "Signup failed.");
+      }
+
+      form.reset();
+      formMessage.textContent = "You're on the list. Thanks for joining the Pass-Libs alpha.";
+      formMessage.className = "message good";
+    } catch (error) {
+      formMessage.textContent = "Something went wrong. Please try again in a moment.";
+      formMessage.className = "message bad";
+      console.error(error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Join Alpha";
     }
-
-    function upgradeSpeed() {
-        if(tokens >= 5) { tokens -= 5; speedLevel++; updateUI(); }
-    }
-
-    function upgradeLegs() {
-        if(tokens >= 20 && !hasLegs) { tokens -= 20; hasLegs = true; updateUI(); document.getElementById('legBtn').innerText = "LEGS: EQUIPPED"; }
-    }
-
-    function updateUI() {
-        document.getElementById('tokenCount').innerText = tokens;
-        document.getElementById('totalTokens').innerText = "Tokens: " + tokens;
-        document.getElementById('speedVal').innerText = speedLevel;
-    }
-
-    const keys = {};
-    window.onkeydown = e => keys[e.code] = true;
-    window.onkeyup = e => keys[e.code] = false;
-
-    function gameLoop() {
-        if(!gameActive) return;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Physics
-        player.vy += gravity;
-        player.y += player.vy;
-        player.x += player.vx;
-        player.rotation += player.vx * 0.05;
-        
-        cameraX = player.x - 100;
-        
-        player.grounded = false;
-        platforms.forEach(p => {
-            // Collision Detection
-            if(player.x + player.r > p.x && player.x - player.r < p.x + p.w) {
-                let floorY = p.y;
-                if(p.isRamp) {
-                    // Simple Ramp Logic
-                    let relX = (player.x - p.x) / p.w;
-                    floorY = p.y - (relX * 60);
-                }
-                
-                if(player.y + player.r > floorY && player.y < floorY + p.h) {
-                    player.y = floorY - player.r;
-                    player.vy = p.isRamp ? -2 : 0; // Pop up slightly on ramps
-                    player.grounded = true;
-                }
-            }
-        });
-
-        // Jump (Legs only)
-        if(hasLegs && keys['Space'] && player.grounded) {
-            player.vy = -12;
-            player.grounded = false;
-        }
-
-        // Collect tokens
-        collectibles.forEach(c => {
-            if(!c.gathered && Math.hypot(player.x - c.x, player.y - c.y) < 30) {
-                c.gathered = true;
-                tokens++;
-                updateUI();
-            }
-        });
-
-        // Infinite World Gen
-        if(platforms[platforms.length-1].x < player.x + canvas.width) {
-            spawnPlatform(platforms[platforms.length-1].x + 400 + Math.random() * 100);
-        }
-
-        // Draw World
-        ctx.save();
-        ctx.translate(-cameraX, 0);
-        
-        platforms.forEach(p => {
-            ctx.fillStyle = p.isRamp ? '#555' : '#222';
-            ctx.beginPath();
-            if(p.isRamp) {
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(p.x + p.w, p.y - 60);
-                ctx.lineTo(p.x + p.w, p.y + p.h);
-                ctx.lineTo(p.x, p.y + p.h);
-            } else {
-                ctx.rect(p.x, p.y, p.w, p.h);
-            }
-            ctx.fill();
-        });
-
-        collectibles.forEach(c => {
-            if(!c.gathered) {
-                ctx.fillStyle = '#ffd700';
-                ctx.beginPath();
-                ctx.arc(c.x, c.y, 8, 0, Math.PI*2);
-                ctx.fill();
-            }
-        });
-
-        // Draw Player
-        ctx.translate(player.x, player.y);
-        ctx.rotate(player.rotation);
-        ctx.strokeStyle = hasLegs ? '#f0f' : '#0ff';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(0, 0, player.r, 0, Math.PI * 2);
-        ctx.stroke();
-        
-        // Draw Legs if evolved
-        if(hasLegs) {
-            ctx.rotate(-player.rotation); // Keep legs vertical-ish
-            ctx.fillStyle = '#f0f';
-            let walk = Math.sin(Date.now() * 0.01) * 10;
-            ctx.fillRect(-10, 15, 5, 10 + walk);
-            ctx.fillRect(5, 15, 5, 10 - walk);
-        }
-        ctx.restore();
-
-        // Game Over
-        if(player.y > canvas.height) {
-            gameActive = false;
-            document.getElementById('ui').style.display = 'flex';
-            document.getElementById('shop').style.display = 'block';
-        } else {
-            requestAnimationFrame(gameLoop);
-        }
-    }
+  });
 </script>
 </body>
 </html>
