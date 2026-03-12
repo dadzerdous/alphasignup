@@ -222,63 +222,63 @@
     </div>
   </main>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
 
-    const form = document.getElementById("alphaForm");
-    const emailInput = document.getElementById("email");
-    const nameInput = document.getElementById("name");
-    const submitBtn = document.getElementById("submitBtn");
-    const formMessage = document.getElementById("formMessage");
+  const form = document.getElementById("alphaForm");
+  const emailInput = document.getElementById("email");
+  const nameInput = document.getElementById("name");
+  const submitBtn = document.getElementById("submitBtn");
+  const formMessage = document.getElementById("formMessage");
 
-    form.addEventListener("submit", async function (event) {
-      event.preventDefault();
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-      const email = emailInput.value.trim();
-      const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const name = nameInput.value.trim();
 
-      if (!SCRIPT_URL || SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec")) {
-        formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
-        formMessage.className = "message bad";
-        return;
+    if (!SCRIPT_URL || SCRIPT_URL.includes("REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL")) {
+      formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
+      formMessage.className = "message bad";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Joining...";
+    formMessage.textContent = "";
+    formMessage.className = "message";
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          source: "Pass-Libs Landing Page"
+        })
+      });
+
+      const text = await response.text();
+
+      if (!response.ok) {
+        throw new Error(text || "Signup failed.");
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Joining...";
-      formMessage.textContent = "";
-      formMessage.className = "message";
-
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({
-            email: email,
-            name: name,
-            source: "Pass-Libs Landing Page"
-          })
-        });
-
-        const text = await response.text();
-
-        if (!response.ok) {
-          throw new Error(text || "Signup failed.");
-        }
-
-        form.reset();
-        formMessage.textContent = "You're on the list. Thanks for joining the Pass-Libs alpha.";
-        formMessage.className = "message good";
-      } catch (error) {
-        formMessage.textContent = "Something went wrong. Please try again in a moment.";
-        formMessage.className = "message bad";
-        console.error(error);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Join Alpha";
-      }
-    });
-  </script>
+      form.reset();
+      formMessage.textContent = "You're on the list. Thanks for joining the Pass-Libs alpha.";
+      formMessage.className = "message good";
+    } catch (error) {
+      formMessage.textContent = "Something went wrong. Please try again in a moment.";
+      formMessage.className = "message bad";
+      console.error(error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Join Alpha";
+    }
+  });
+</script>
 </body>
 </html>
