@@ -977,18 +977,23 @@ function buildWaveEnemyDef() {
   const isBoss = wave % 5 === 0;
   if (isBoss) return; // boss handled separately
 
-  // Scale: wave 1 = 4 enemies, +2 per wave, max 30
-  const count = Math.min(4 + (wave - 1) * 2, 30);
-  const types = wave < 3 ? ['blue'] :
-                wave < 5 ? ['blue','purple'] :
-                wave < 8 ? ['blue','purple','yellow'] :
-                           ['blue','purple','yellow','red','orange'];
+  // Which cycle are we in? Every 5 waves repeats, HP doubles each cycle
+  const cycle    = Math.floor((wave - 1) / 5);       // 0, 1, 2, ...
+  const waveInCycle = ((wave - 1) % 5) + 1;          // 1-5 repeating
+  const hpScale  = Math.pow(2, cycle);               // x1, x2, x4, x8...
+
+  // Count and types based on position within cycle (not raw wave)
+  const count = Math.min(4 + (waveInCycle - 1) * 2, 14) + cycle * 2; // base ramps, then +2 per cycle
+  const types = waveInCycle < 2 ? ['blue'] :
+                waveInCycle < 3 ? ['blue','purple'] :
+                waveInCycle < 4 ? ['blue','purple','yellow'] :
+                                  ['blue','purple','yellow','red','orange'];
 
   for (let i = 0; i < count; i++) {
     const tId = types[Math.floor(Math.random() * types.length)];
     const def = ENEMY_TYPES.find(e => e.id === tId);
-    const delay = 60 + i * Math.max(20, 80 - wave * 3); // frames
-    waveEnemyDef.push({ ...def, delay, spawned: false });
+    const delay = 60 + i * Math.max(15, 80 - waveInCycle * 12);
+    waveEnemyDef.push({ ...def, delay, spawned: false, hpScale });
   }
   enemiesThisWave = count;
   enemiesSpawned = 0;
@@ -1682,13 +1687,15 @@ function showBossReward() {
 }
 
 function spawnEnemy(def) {
-  const speed = (def.speedMult * (0.8 + wave * 0.08)) || 1;
+  const speed = (def.speedMult * (0.8 + wave * 0.04)) || 1;
+  const hpScale = def.hpScale || 1;
+  const baseHp = def.hpMult * (3 + wave * 0.6) * hpScale;
   enemies.push({
     ...def,
     x: def.x || (60 + Math.random() * (W - 120)),
     y: def.y || -20,
-    hp: (def.hpMult * (3 + wave * 1.2)),
-    maxHp: (def.hpMult * (3 + wave * 1.2)),
+    hp: baseHp,
+    maxHp: baseHp,
     speed,
     angle: Math.random() * Math.PI * 2,
     rotSpeed: (Math.random() * 0.03 + 0.01) * (Math.random() < 0.5 ? 1 : -1),
