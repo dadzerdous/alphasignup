@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Evolution Side-Scroller | SingleFrameGames 0.0.03</title>
+    <style>
+        body { margin: 0; background: #111; color: white; font-family: 'Courier New', monospace; overflow: hidden; }
+        canvas { display: block; background: linear-gradient(#001, #003); }
+        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); z-index: 10; }
+        .hud { position: absolute; top: 20px; left: 20px; color: #0ff; font-size: 20px; pointer-events: none; }
+        .btn { background: none; border: 2px solid #0ff; color: #0ff; padding: 15px 30px; margin: 10px; cursor: pointer; font-size: 1.1rem; width: 280px; }
+        .btn:hover { background: #0ff; color: #000; box-shadow: 0 0 15px #0ff; }
+        #shop { display: none; text-align: center; }
+        footer { position: absolute; bottom: 15px; font-size: 0.8rem; }
+        footer a { color: #0ff; text-decoration: none; }
+    </style>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pass-Libs Alpha | Single Frame Games</title>
@@ -54,1421 +67,24 @@
       margin: 0 auto;
       padding: 24px;
       text-align: left;
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEON STRIKE: MERGE</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-
-  :root {
-    --cyan: #00f5ff;
-    --magenta: #ff00cc;
-    --green: #00ff88;
-    --yellow: #ffe600;
-    --red: #ff2244;
-    --orange: #ff6600;
-    --bg: #030610;
-    --panel: rgba(0,20,40,0.85);
-    --kinetic: #00f5ff;
-    --energy: #cc00ff;
-    --plasma: #ff6600;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--cyan);
-    font-family: 'Share Tech Mono', monospace;
-    overflow: hidden;
-    touch-action: none;
-    user-select: none;
-    width: 100vw;
-    height: 100vh;
-  }
-
-  canvas { display: block; position: absolute; top: 0; left: 0; }
-
-  /* HUD */
-  #hud {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  .hud-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .hud-label {
-    font-size: 9px;
-    letter-spacing: 3px;
-    opacity: 0.5;
-    text-transform: uppercase;
-  }
-
-  .hud-value {
-    font-family: 'Orbitron', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    text-shadow: 0 0 10px currentColor;
-  }
-
-  #waveVal { color: var(--cyan); }
-  #creditsVal { color: var(--yellow); }
-  #shieldsVal { color: var(--green); }
-  #chainVal { color: var(--magenta); }
-  #rankVal { color: var(--cyan); }
-
-  /* Shield bar */
-  #shieldBar {
-    position: absolute;
-    top: 60px;
-    left: 0; right: 0;
-    height: 3px;
-    background: rgba(0,255,136,0.15);
-    z-index: 10;
-    pointer-events: none;
-  }
-  #shieldFill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green), #00ffcc);
-    box-shadow: 0 0 8px var(--green);
-    transition: width 0.3s;
-  }
-
-  /* Heat bar */
-  #heatBar {
-    position: absolute;
-    bottom: 255px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    z-index: 10;
-    pointer-events: none;
-    text-align: center;
-  }
-  #heatLabel {
-    font-size: 9px;
-    letter-spacing: 2px;
-    opacity: 0.6;
-    margin-bottom: 3px;
-  }
-  #heatTrack {
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  #heatFill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--cyan), var(--magenta));
-    box-shadow: 0 0 6px var(--magenta);
-    transition: width 0.1s;
-    border-radius: 2px;
-  }
-
-  /* Bottom panel */
-  /* bottom area styled via canvas, no HTML panel needed */
-
-  #railsLabel {
-    position: absolute;
-    bottom: 198px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 9px;
-    letter-spacing: 4px;
-    opacity: 0.4;
-    pointer-events: none;
-    z-index: 11;
-  }
-
-  #hangarLabel {
-    position: absolute;
-    bottom: 118px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 9px;
-    letter-spacing: 4px;
-    opacity: 0.4;
-    pointer-events: none;
-    z-index: 11;
-  }
-
-  /* Buttons */
-  #controls {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    z-index: 20;
-    background: rgba(0,2,8,0.95);
-    border-top: 1px solid rgba(0,245,255,0.1);
-    padding: 0 8px;
-  }
-
-  .btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    padding: 10px 16px;
-    border: 1px solid currentColor;
-    background: rgba(0,0,0,0.6);
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.15s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: currentColor;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-
-  .btn:active::before { opacity: 0.15; }
-
-  .btn-kinetic { color: var(--kinetic); box-shadow: 0 0 8px rgba(0,245,255,0.3); }
-  .btn-energy  { color: var(--energy);  box-shadow: 0 0 8px rgba(204,0,255,0.3); }
-  .btn-plasma  { color: var(--plasma);  box-shadow: 0 0 8px rgba(255,102,0,0.3); }
-  .btn-sell    { color: var(--red);     box-shadow: 0 0 8px rgba(255,34,68,0.2); }
-
-  /* Wave announcement */
-  #waveAnnounce {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Orbitron', monospace;
-    font-size: 48px;
-    font-weight: 900;
-    color: var(--cyan);
-    text-shadow: 0 0 30px var(--cyan), 0 0 60px var(--cyan);
-    letter-spacing: 6px;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 50;
-    transition: opacity 0.4s;
-    white-space: nowrap;
-  }
-
-  /* Chain popup */
-  #chainPopup {
-    position: absolute;
-    font-family: 'Orbitron', monospace;
-    font-size: 22px;
-    font-weight: 900;
-    color: var(--magenta);
-    text-shadow: 0 0 20px var(--magenta);
-    pointer-events: none;
-    z-index: 40;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  /* ---- SKILL DRAWER (mobile-friendly bottom sheet) ---- */
-  #skillOverlay {
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 85vh;
-    background: rgba(2,6,16,0.98);
-    border-top: 1px solid var(--cyan);
-    box-shadow: 0 -10px 40px rgba(0,245,255,0.15);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    touch-action: none;
-  }
-  #skillOverlay.active { transform: translateY(0); }
-
-  #skillDragHandle {
-    width: 40px; height: 4px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 2px;
-    margin: 10px auto 0;
-    cursor: grab;
-    flex-shrink: 0;
-  }
-
-  .skill-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 16px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--cyan);
-    text-align: center;
-    padding: 8px 0 4px;
-    flex-shrink: 0;
-  }
-
-  .skill-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    flex-shrink: 0;
-  }
-
-  .skill-tab {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    padding: 10px 0;
-    flex: 1;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    background: transparent;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .skill-tab.kinetic { color: var(--kinetic); }
-  .skill-tab.energy  { color: var(--energy); }
-  .skill-tab.plasma  { color: var(--plasma); }
-  .skill-tab.pilot   { color: var(--yellow); }
-  .skill-tab.active  { border-bottom-color: currentColor; background: rgba(255,255,255,0.05); }
-
-  .skill-xp-bar {
-    padding: 8px 16px 4px;
-    flex-shrink: 0;
-  }
-  .skill-xp-label {
-    font-size: 9px;
-    letter-spacing: 2px;
-    opacity: 0.5;
-    margin-bottom: 4px;
-    text-align: center;
-  }
-  .skill-xp-track {
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .skill-xp-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.4s;
-  }
-
-  /* Scrollable skill grid */
-  #skillGrid {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    align-content: start;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .skill-node {
-    border: 1px solid rgba(255,255,255,0.12);
-    padding: 10px 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: rgba(0,10,20,0.8);
-    border-radius: 4px;
-  }
-  .skill-node.unlocked { border-color: var(--green); background: rgba(0,40,20,0.4); }
-  .skill-node.available { border-color: rgba(255,255,255,0.35); }
-  .skill-node.available:active { background: rgba(255,255,255,0.08); }
-  .skill-node.locked { opacity: 0.3; cursor: not-allowed; }
-
-  .skill-node-name {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-  .skill-node-desc {
-    font-size: 9px;
-    opacity: 0.55;
-    line-height: 1.4;
-    margin-bottom: 6px;
-  }
-  .skill-node-cost {
-    font-size: 9px;
-    color: var(--yellow);
-  }
-
-  #closeSkill {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: rgba(255,255,255,0.3);
-    border: none;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    background: transparent;
-    padding: 14px;
-    cursor: pointer;
-    letter-spacing: 3px;
-    width: 100%;
-    flex-shrink: 0;
-  }
-
-  /* Game Over / Boss screens */
-  #overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 200;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-  }
-  #overlay.active { display: flex; }
-
-  .overlay-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 52px;
-    font-weight: 900;
-    letter-spacing: 6px;
-    text-shadow: 0 0 40px currentColor;
-  }
-
-  .overlay-sub {
-    font-size: 13px;
-    letter-spacing: 3px;
-    opacity: 0.6;
-  }
-
-  .overlay-stat {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    color: var(--yellow);
-  }
-
-  .overlay-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 14px 40px;
-    border: 2px solid var(--cyan);
-    background: transparent;
-    color: var(--cyan);
-    cursor: pointer;
-    letter-spacing: 3px;
-    margin-top: 10px;
-    transition: all 0.2s;
-    box-shadow: 0 0 20px rgba(0,245,255,0.3);
-  }
-  .overlay-btn:hover { background: var(--cyan); color: #000; }
-
-  /* Prep phase timer */
-  #prepTimer {
-    position: absolute;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Orbitron', monospace;
-    font-size: 13px;
-    color: var(--yellow);
-    letter-spacing: 3px;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 15;
-    text-align: center;
-  }
-
-  /* Beam mode indicator */
-  #beamMode {
-    position: absolute;
-    bottom: 285px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 9px;
-    letter-spacing: 3px;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 15;
-    transition: opacity 0.3s;
-    text-align: center;
-  }
-
-  /* Boss health */
-  #bossHpBar {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    z-index: 15;
-    pointer-events: none;
-  }
-  #bossHpLabel {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--red);
-    letter-spacing: 3px;
-  }
-  #bossHpTrack {
-    width: 100%;
-    height: 6px;
-    background: rgba(255,0,0,0.15);
-    border-radius: 3px;
-  }
-  #bossHpFill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--red), var(--orange));
-    box-shadow: 0 0 8px var(--red);
-    border-radius: 3px;
-    transition: width 0.2s;
-  }
-</style>
-</head>
-<body>
-
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-block">
-    <div class="hud-label">Wave</div>
-    <div class="hud-value" id="waveVal">1</div>
-  </div>
-  <div class="hud-block">
-    <div class="hud-label">Credits</div>
-    <div class="hud-value" id="creditsVal" style="color:var(--yellow)">$50</div>
-  </div>
-  <div class="hud-block">
-    <div class="hud-label">Shields</div>
-    <div class="hud-value" id="shieldsVal" style="color:var(--green)">100%</div>
-  </div>
-  <div class="hud-block">
-    <div class="hud-label">Chain</div>
-    <div class="hud-value" id="chainVal" style="color:var(--magenta)">x1</div>
-  </div>
-  <div class="hud-block" style="cursor:pointer" onclick="openSkills()">
-    <div class="hud-label">PILOT RANK</div>
-    <div class="hud-value" id="rankVal">1</div>
-    <div id="skillPtBadge" style="font-size:8px;color:var(--yellow);letter-spacing:1px;display:none;">0 PTS</div>
-  </div>
-</div>
-
-<div id="shieldBar"><div id="shieldFill" style="width:100%"></div></div>
-
-<!-- Boss HP -->
-<div id="bossHpBar">
-  <div id="bossHpLabel">⚠ BOSS</div>
-  <div id="bossHpTrack"><div id="bossHpFill" style="width:100%"></div></div>
-</div>
-
-<!-- Prep timer -->
-<div id="prepTimer"></div>
-
-<!-- Wave announce -->
-<div id="waveAnnounce"></div>
-
-<!-- Chain popup -->
-<div id="chainPopup"></div>
-
-<!-- Heat (hidden) -->
-<div id="heatBar" style="display:none">
-  <div id="heatLabel">BEAM HEAT</div>
-  <div id="heatTrack"><div id="heatFill" style="width:0%"></div></div>
-</div>
-
-<!-- Beam mode hint -->
-<div id="beamMode" style="display:none">HOLD TO FIRE BEAM</div>
-
-<div id="railsLabel" style="display:none">◈ ACTIVE RAILS ◈</div>
-<div id="hangarLabel" style="display:none">◈ HANGAR ◈</div>
-
-
-
-<!-- Controls -->
-<div id="controls">
-  <button class="btn btn-kinetic" onclick="buyTurret()">BUY $15</button>
-  <button class="btn btn-sell"    onclick="toggleSellMode()">SELL</button>
-  <button class="btn" style="color:#000;background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px rgba(0,245,255,0.5);font-weight:900;" onclick="openSkills()">SKILLS</button>
-  <button class="btn" style="color:rgba(255,255,255,0.35);border-color:rgba(255,255,255,0.12);font-size:9px;" onclick="quitToMenu()">MENU</button>
-</div>
-
-<!-- Skill Drawer (bottom sheet) -->
-<div id="skillOverlay">
-  <div id="skillDragHandle"></div>
-  <div class="skill-title">COMMAND CENTER</div>
-  <div class="skill-tabs">
-    <button class="skill-tab kinetic active" onclick="switchTab('kinetic')">KINETIC</button>
-    <button class="skill-tab energy"         onclick="switchTab('energy')">ENERGY</button>
-    <button class="skill-tab plasma"         onclick="switchTab('plasma')">PLASMA</button>
-    <button class="skill-tab pilot"          onclick="switchTab('pilot')">PILOT</button>
-  </div>
-  <div class="skill-xp-bar" id="xpBarContainer">
-    <div class="skill-xp-label" id="xpLabel"></div>
-    <div class="skill-xp-track"><div class="skill-xp-fill" id="xpFill"></div></div>
-  </div>
-  <div id="skillGrid"></div>
-  <button id="closeSkill" onclick="closeSkills()">CLOSE</button>
-</div>
-
-<!-- Game Over / Boss Overlay -->
-<div id="overlay">
-  <div class="overlay-title" id="overlayTitle" style="color:var(--red)">DESTROYED</div>
-  <div class="overlay-sub" id="overlaySub">YOUR BASE HAS FALLEN</div>
-  <div class="overlay-stat" id="overlayStat"></div>
-  <button class="overlay-btn" id="overlayBtn" onclick="restartGame()">DEPLOY AGAIN</button>
-  <button class="overlay-btn" onclick="quitToMenu()" style="border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.4);box-shadow:none;font-size:11px;padding:10px 30px;">MAIN MENU</button>
-</div>
-
-<!-- Main Menu -->
-<div id="splash" style="position:absolute;inset:0;background:#030610;z-index:300;display:flex;flex-direction:column;align-items:center;overflow:hidden;">
-
-  <!-- Logo -->
-  <div style="padding-top:clamp(20px,5vh,50px);text-align:center;flex-shrink:0;">
-    <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:6px;color:var(--cyan);opacity:0.4;margin-bottom:10px;">DEFENSE SYSTEMS v1.0</div>
-    <div style="font-family:'Orbitron',monospace;font-size:clamp(36px,8vw,64px);font-weight:900;color:var(--cyan);text-shadow:0 0 40px var(--cyan),0 0 80px rgba(0,245,255,0.3);letter-spacing:4px;line-height:1">NEON<br>STRIKE</div>
-    <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:10px;color:var(--magenta);text-shadow:0 0 15px var(--magenta);margin-top:6px;">MERGE</div>
-  </div>
-
-  <!-- Divider -->
-  <div style="width:min(280px,80%);height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);margin:16px 0;flex-shrink:0;"></div>
-
-  <!-- Pilot stats -->
-  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-align:center;margin-bottom:14px;flex-shrink:0;">
-    PILOT RANK <span style="color:var(--yellow)" id="splashRank">1</span>
-    &nbsp;&nbsp;|&nbsp;&nbsp;
-    BEST WAVE <span style="color:var(--yellow)" id="splashHigh">--</span>
-  </div>
-
-  <!-- Tab buttons -->
-  <div style="display:flex;gap:0;border:1px solid rgba(0,245,255,0.25);flex-shrink:0;margin-bottom:16px;">
-    <button id="tabPlay"   onclick="splashTab('play')"   style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:10px 20px;border:none;background:var(--cyan);color:#000;cursor:pointer;font-weight:700;">PLAY</button>
-    <button id="tabSkills" onclick="splashTab('skills')" style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:10px 20px;border:none;background:transparent;color:var(--cyan);cursor:pointer;font-weight:700;">SKILLS</button>
-    <button id="tabHow"    onclick="splashTab('how')"    style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;padding:10px 20px;border:none;background:transparent;color:var(--cyan);cursor:pointer;font-weight:700;">HOW TO PLAY</button>
-  </div>
-
-  <!-- PLAY panel -->
-  <div id="panelPlay" style="display:flex;flex-direction:column;align-items:center;gap:12px;flex-shrink:0;">
-    <button onclick="startGame()" style="font-family:'Orbitron',monospace;font-size:15px;font-weight:900;padding:16px 60px;border:2px solid var(--cyan);background:transparent;color:var(--cyan);cursor:pointer;letter-spacing:4px;box-shadow:0 0 24px rgba(0,245,255,0.35);transition:all 0.2s;"
-      onmouseover="this.style.background='var(--cyan)';this.style.color='#000'"
-      onmouseout="this.style.background='transparent';this.style.color='var(--cyan)'">
-      DEPLOY
-    </button>
-    <button onclick="resetMeta()" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:7px 20px;border:1px solid rgba(255,34,68,0.3);background:transparent;color:rgba(255,34,68,0.4);cursor:pointer;transition:all 0.2s;"
-      onmouseover="this.style.color='#ff2244';this.style.borderColor='#ff2244'"
-      onmouseout="this.style.color='rgba(255,34,68,0.4)';this.style.borderColor='rgba(255,34,68,0.3)'">
-      RESET PROGRESS
-    </button>
-  </div>
-
-  <!-- SKILLS panel (menu version - full drawer reused) -->
-  <div id="panelSkills" style="display:none;width:min(480px,94%);flex:1;overflow:hidden;display:none;flex-direction:column;">
-    <div style="display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
-      <button class="skill-tab kinetic active" id="mskKinetic" onclick="menuSkillTab('kinetic')">KINETIC</button>
-      <button class="skill-tab energy"         id="mskEnergy"  onclick="menuSkillTab('energy')">ENERGY</button>
-      <button class="skill-tab plasma"         id="mskPlasma"  onclick="menuSkillTab('plasma')">PLASMA</button>
-      <button class="skill-tab pilot"          id="mskPilot"   onclick="menuSkillTab('pilot')">PILOT</button>
-    </div>
-    <div class="skill-xp-bar">
-      <div class="skill-xp-label" id="menuXpLabel"></div>
-      <div class="skill-xp-track"><div class="skill-xp-fill" id="menuXpFill"></div></div>
-    </div>
-    <div id="menuSkillGrid" style="flex:1;overflow-y:auto;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start;-webkit-overflow-scrolling:touch;max-height:45vh;"></div>
-    <button onclick="splashTab('play')" style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;margin:8px;padding:12px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;">BACK</button>
-  </div>
-
-  <!-- HOW TO PLAY panel (hidden by default) -->
-  <div id="panelHow" style="display:none;width:min(480px,92%);overflow-y:auto;padding:0 4px 20px;-webkit-overflow-scrolling:touch;">
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-
-      <!-- Card helper -->
-      <div style="grid-column:1/-1;background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:10px;">CORE LOOP</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);line-height:1.8;">
-          1. Buy a turret &mdash; get a random type<br>
-          2. Drag it into a <span style="color:var(--cyan)">RAIL</span> slot to activate<br>
-          3. Merge two of the same type &amp; level to upgrade<br>
-          4. Survive the wave, earn credits, repeat
-        </div>
-      </div>
-
-      <!-- Layout diagram -->
-      <div style="grid-column:1/-1;background:rgba(0,245,255,0.03);border:1px solid rgba(0,245,255,0.12);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:12px;">LAYOUT</div>
-        <svg viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:0 auto;">
-          <!-- Enemy zone -->
-          <rect x="0" y="0" width="320" height="60" fill="rgba(255,34,68,0.06)" rx="3"/>
-          <text x="160" y="14" fill="rgba(255,34,68,0.5)" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="2">ENEMY ZONE</text>
-          <!-- enemy shapes -->
-          <rect x="30" y="22" width="14" height="14" fill="none" stroke="#00aaff" stroke-width="1.5" transform="rotate(45,37,29)"/>
-          <polygon points="80,22 90,36 70,36" fill="none" stroke="#ff2244" stroke-width="1.5"/>
-          <circle cx="130" cy="29" r="7" fill="none" stroke="#ffe600" stroke-width="1.5"/>
-          <rect x="165" y="22" width="14" height="14" fill="none" stroke="#cc00ff" stroke-width="1.5"/>
-          <polygon points="230,22 244,29 230,36 216,29" fill="none" stroke="#ff6600" stroke-width="1.5"/>
-          <!-- base line -->
-          <line x1="0" y1="62" x2="320" y2="62" stroke="rgba(0,245,255,0.3)" stroke-width="1" stroke-dasharray="5,5"/>
-          <text x="4" y="71" fill="rgba(0,245,255,0.35)" font-family="monospace" font-size="7" letter-spacing="1">BASE LINE</text>
-          <!-- Rails -->
-          <text x="160" y="80" fill="rgba(0,245,255,0.6)" font-family="monospace" font-size="7" text-anchor="middle" letter-spacing="3">RAILS (ACTIVE)</text>
-          <rect x="60" y="83" width="28" height="28" fill="rgba(0,245,255,0.08)" stroke="rgba(0,245,255,0.7)" stroke-width="1.5" rx="2"/>
-          <circle cx="74" cy="97" r="8" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
-          <text x="74" y="101" fill="#00f5ff" font-family="monospace" font-size="7" text-anchor="middle">1</text>
-          <rect x="96" y="83" width="28" height="28" fill="rgba(0,245,255,0.04)" stroke="rgba(0,245,255,0.35)" stroke-width="1" stroke-dasharray="3,3" rx="2"/>
-          <rect x="132" y="83" width="28" height="28" fill="rgba(0,245,255,0.04)" stroke="rgba(0,245,255,0.35)" stroke-width="1" stroke-dasharray="3,3" rx="2"/>
-          <!-- Hangar -->
-          <text x="160" y="118" fill="rgba(0,245,255,0.4)" font-family="monospace" font-size="7" text-anchor="middle" letter-spacing="3">HANGAR (STORAGE)</text>
-          <rect x="195" y="83" width="20" height="20" fill="rgba(0,245,255,0.06)" stroke="rgba(0,245,255,0.4)" stroke-width="1" rx="2"/>
-          <polygon points="205,86 211,96 199,96" fill="none" stroke="#ff6600" stroke-width="1.2"/>
-          <text x="205" y="100" fill="#ff6600" font-family="monospace" font-size="5" text-anchor="middle">1</text>
-          <rect x="218" y="83" width="20" height="20" fill="rgba(0,245,255,0.06)" stroke="rgba(0,245,255,0.4)" stroke-width="1" rx="2"/>
-          <rect x="241" y="83" width="20" height="20" fill="rgba(0,245,255,0.04)" stroke="rgba(0,245,255,0.2)" stroke-width="1" stroke-dasharray="2,2" rx="2"/>
-          <rect x="264" y="83" width="20" height="20" fill="rgba(0,245,255,0.04)" stroke="rgba(0,245,255,0.2)" stroke-width="1" stroke-dasharray="2,2" rx="2"/>
-          <!-- drag arrow -->
-          <path d="M110 97 Q146 90 193 90" fill="none" stroke="rgba(255,255,0,0.4)" stroke-width="1" stroke-dasharray="3,2"/>
-          <polygon points="193,87 198,90 193,93" fill="rgba(255,255,0,0.5)"/>
-          <text x="146" y="86" fill="rgba(255,255,0,0.5)" font-family="monospace" font-size="6" text-anchor="middle">DRAG</text>
-        </svg>
-      </div>
-
-      <div style="background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:10px;">TURRET TYPES</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;line-height:2;">
-          <span style="color:var(--kinetic)">&#9645; KINETIC</span> &mdash; fast, piercing<br>
-          <span style="color:var(--energy)">&#9672; ENERGY</span> &mdash; slows, arcs<br>
-          <span style="color:var(--plasma)">&#9650; PLASMA</span> &mdash; burn, AOE
-        </div>
-      </div>
-
-      <div style="background:rgba(204,0,255,0.04);border:1px solid rgba(204,0,255,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--magenta);margin-bottom:10px;">BEAM</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.6);line-height:1.8;">
-          Hold anywhere above the base line to fire a manual beam. It overheats &mdash; use it in bursts for chain kills.
-        </div>
-      </div>
-
-      <div style="background:rgba(255,230,0,0.04);border:1px solid rgba(255,230,0,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--yellow);margin-bottom:10px;">CHAIN KILLS</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.6);line-height:1.8;">
-          Kill enemies fast to build a chain multiplier. Higher chains = more credits per kill.
-        </div>
-      </div>
-
-      <div style="background:rgba(255,34,68,0.04);border:1px solid rgba(255,34,68,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--red);margin-bottom:10px;">ENEMIES</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;line-height:2;color:rgba(255,255,255,0.6);">
-          <span style="color:#00aaff">BLUE</span> weak to Kinetic<br>
-          <span style="color:#cc00ff">PURPLE</span> weak to Energy<br>
-          <span style="color:#ff2244">RED</span> weak to Plasma<br>
-          <span style="color:#ffe600">YELLOW</span> fast runners<br>
-          <span style="color:#ff6600">ORANGE</span> heavy brutes
-        </div>
-      </div>
-
-      <div style="background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:6px;padding:14px 16px;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--green);margin-bottom:10px;">PROGRESSION</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,0.6);line-height:1.8;">
-          Earn XP to rank up Pilot &amp; each turret type. Spend ranks in the <span style="color:var(--cyan)">SKILLS</span> tree. Progress carries across runs. Boss every 5 waves.
-        </div>
-      </div>
-
-    </div>
-
-    <button onclick="splashTab('play')" style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;margin-top:16px;padding:12px 40px;border:1px solid var(--cyan);background:transparent;color:var(--cyan);cursor:pointer;width:100%;">BACK</button>
-
-    <div style="text-align:center;margin-top:10px;padding-bottom:8px;">
-      <a href="https://singleframegames.com" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2px;text-decoration:none;">SINGLEFRAMEGAMES.COM</a>
-    </div>
-  </div>
-
-</div>
-
-<canvas id="gameCanvas"></canvas>
-
-<script>
-// =============================================
-// PERSISTENT META (localStorage)
-// =============================================
-const SAVE_KEY = 'neonStrikeSave';
-let meta = loadMeta();
-
-function loadMeta() {
-  try {
-    const s = localStorage.getItem(SAVE_KEY);
-    if (s) return JSON.parse(s);
-  } catch(e) {}
-  return {
-    pilotRank: 1,
-    pilotXP: 0,
-    skillPoints: 0,
-    turretXP: { kinetic: 0, energy: 0, plasma: 0 },
-    turretRank: { kinetic: 1, energy: 1, plasma: 1 },
-    turretSkillPoints: { kinetic: 0, energy: 0, plasma: 0 },
-    pilotSkills: {},
-    turretSkills: { kinetic: {}, energy: {}, plasma: {} },
-    highScore: 0,
-    totalKills: 0,
-  };
-}
-
-function saveMeta() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(meta)); } catch(e) {}
-}
-
-// =============================================
-// SKILL DEFINITIONS
-// =============================================
-const TURRET_SKILLS = {
-  kinetic: [
-    { id:'k1', name:'Rapid Fire',    desc:'Fire rate +25%',         cost:100, effect:'fireRate', val:0.25 },
-    { id:'k2', name:'Piercing Shot', desc:'Bullets pierce 1 enemy', cost:200, effect:'pierce',   val:1,    req:'k1' },
-    { id:'k3', name:'Ricochet',      desc:'Bullets bounce once',    cost:400, effect:'ricochet', val:1,    req:'k2' },
-    { id:'k4', name:'Overdrive',     desc:'Fire rate +50%',         cost:300, effect:'fireRate', val:0.5,  req:'k1' },
-    { id:'k5', name:'Twin Barrel',   desc:'Fire 2 bullets',         cost:500, effect:'twin',     val:1,    req:'k4' },
-    { id:'k6', name:'Railgun',       desc:'Bullets ignore armor',   cost:800, effect:'armorpen', val:1,    req:'k5' },
-    { id:'k7', name:'Velocity+',     desc:'Bullet speed +50%',      cost:150, effect:'speed',    val:0.5 },
-    { id:'k8', name:'Magazine',      desc:'Burst of 3 shots',       cost:350, effect:'burst',    val:3,    req:'k7' },
-    { id:'k9', name:'Shredder',      desc:'Crit chance 15%',        cost:600, effect:'crit',     val:0.15, req:'k8' },
-  ],
-  energy: [
-    { id:'e1', name:'Wide Beam',     desc:'Beam width +30%',        cost:100, effect:'beamWidth',val:0.3 },
-    { id:'e2', name:'Slow Field',    desc:'Hits slow enemy 20%',    cost:200, effect:'slow',     val:0.2,  req:'e1' },
-    { id:'e3', name:'Shield Drain',  desc:'+50% vs shields',        cost:400, effect:'shieldbns',val:0.5,  req:'e2' },
-    { id:'e4', name:'Overcharge',    desc:'Dmg +40% when hot',      cost:300, effect:'heatbonus',val:0.4,  req:'e1' },
-    { id:'e5', name:'Chain Arc',     desc:'Arcs to 2nd enemy',      cost:500, effect:'arc',      val:2,    req:'e4' },
-    { id:'e6', name:'Ion Storm',     desc:'All-lane pulse every 10s',cost:800,effect:'pulse',    val:1,    req:'e5' },
-    { id:'e7', name:'Capacitor',     desc:'Heat cools 25% faster',  cost:150, effect:'cooldown', val:0.25 },
-    { id:'e8', name:'Focus Lens',    desc:'Damage +30%',            cost:350, effect:'dmgBonus', val:0.3,  req:'e7' },
-    { id:'e9', name:'Overload',      desc:'Level 3 bursts on kill', cost:600, effect:'overload', val:1,    req:'e8' },
-  ],
-  plasma: [
-    { id:'p1', name:'Blast Radius',  desc:'AOE +20%',               cost:100, effect:'aoe',      val:0.2 },
-    { id:'p2', name:'Burn DoT',      desc:'Leaves burn 2s',         cost:200, effect:'burn',     val:2,    req:'p1' },
-    { id:'p3', name:'Splash Chain',  desc:'Explosion hits chain',   cost:400, effect:'chain',    val:1,    req:'p2' },
-    { id:'p4', name:'Napalm',        desc:'Burn damage +50%',       cost:300, effect:'burnDmg',  val:0.5,  req:'p1' },
-    { id:'p5', name:'Sticky Fire',   desc:'Burn slows enemy',       cost:500, effect:'burnSlow', val:0.3,  req:'p4' },
-    { id:'p6', name:'Inferno',       desc:'AOE pulses on kill',     cost:800, effect:'inferno',  val:1,    req:'p5' },
-    { id:'p7', name:'Heat Sink',     desc:'Plasma generates less heat',cost:150,effect:'heatRed',val:0.25 },
-    { id:'p8', name:'Superheated',   desc:'Dmg +25% per wave',      cost:350, effect:'waveBonus',val:0.25, req:'p7' },
-    { id:'p9', name:'Meltdown',      desc:'Rare instant-kill 5%',   cost:600, effect:'instakill',val:0.05, req:'p8' },
-  ],
-};
-
-const PILOT_SKILLS = [
-  { id:'pr1', name:'Veteran Start',  desc:'Start with +$30',         cost:50,  effect:'startCredits', val:30 },
-  { id:'pr2', name:'Salvage',        desc:'Kill credit +$1',         cost:80,  effect:'killBonus',    val:1 },
-  { id:'pr3', name:'Fast Cooldown',  desc:'Beam cools 30% faster',   cost:60,  effect:'beamCool',     val:0.3 },
-  { id:'pr4', name:'Chain Master',   desc:'Chain mult lasts longer', cost:100, effect:'chainTime',    val:1.5 },
-  { id:'pr5', name:'Iron Will',      desc:'Start with +10 shields',  cost:70,  effect:'startShields', val:10 },
-  { id:'pr6', name:'Efficiency',     desc:'Turrets 10% cheaper',     cost:120, effect:'discount',     val:0.1 },
-  { id:'pr7', name:'Overclock',      desc:'Unlock Lvl4 turrets',     cost:200, effect:'overclock',    val:1 },
-  { id:'pr8', name:'Arsenal',        desc:'+1 rail slot',            cost:300, effect:'railSlot',     val:1 },
-  { id:'pr9', name:'Hangar Bay',     desc:'+2 hangar slots',         cost:250, effect:'hangarSlot',   val:2 },
-];
-
-const PILOT_XP_PER_RANK  = [0,300,600,1000,1500,2200,3000,4000,5500,7500];
-const TURRET_XP_PER_RANK = [0,250,550,1000,1800,3000];
-
-// =============================================
-// GAME STATE
-// =============================================
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-
-// Session state
-let credits, shields, wave, heat, overheated;
-let chainCount, chainTimer, chainTimeout = 1800; // ms
-let lastKillTime = 0;
-let sellMode = false;
-
-// Game objects
-let hangar, rails;
-let enemies, bullets, particles, floaters;
-let boss = null;
-let bossMaxHp = 0;
-
-// Wave system
-let phase; // 'prep' | 'combat'
-let prepCountdown;
-let enemiesThisWave, enemiesSpawned, enemiesKilled, waveComplete;
-let waveEnemyDef = [];
-
-// Dragging
-let dragging = null, dragFromHangar = true, dragFromIdx = -1;
-let mouseX = 0, mouseY = 0;
-
-// Hover & selection
-let hoveredSlot = null;   // { slot, cx, cy } -- slot under pointer
-let selectedSlot = null;  // { slot } -- tapped for stats panel
-
-// Beam
-let beamActive = false, beamX = 0, beamY = 0;
-
-// Damage types
-const TYPES = {
-  kinetic: { color: '#00f5ff', weakVs: 'blue',   strongVs: 'purple' },
-  energy:  { color: '#cc00ff', weakVs: 'purple', strongVs: 'red'    },
-  plasma:  { color: '#ff6600', weakVs: 'red',    strongVs: 'blue'   },
-};
-
-const ENEMY_TYPES = [
-  { id:'blue',   color:'#00aaff', shape:'rect',     hpMult:1,   speedMult:1,    reward:3,  weakTo:'kinetic', armor:'energy',  label:'SCOUT'  },
-  { id:'purple', color:'#cc00ff', shape:'diamond',  hpMult:1.3, speedMult:0.8,  reward:4,  weakTo:'energy',  armor:'kinetic', label:'PHANTOM'},
-  { id:'red',    color:'#ff2244', shape:'triangle', hpMult:1.8, speedMult:0.6,  reward:6,  weakTo:'plasma',  armor:'energy',  label:'TANK'   },
-  { id:'yellow', color:'#ffe600', shape:'circle',   hpMult:0.6, speedMult:1.8,  reward:5,  weakTo:'kinetic', armor:'plasma',  label:'RUNNER' },
-  { id:'orange', color:'#ff6600', shape:'star',     hpMult:2,   speedMult:0.9,  reward:8,  weakTo:'plasma',  armor:'kinetic', label:'BRUTE'  },
-];
-
-// =============================================
-// INIT
-// =============================================
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resize);
-resize();
-
-// Layout -- built bottom-up from fixed zones:
-const SLOT_W = 52, SLOT_GAP = 6;
-const RAIL_W = 60, RAIL_GAP = 10;
-const BTN_ZONE  = 50;
-const HNG_ZONE  = 130;
-const RAIL_ZONE = 75;
-const PANEL_H   = BTN_ZONE + HNG_ZONE + RAIL_ZONE + 10; // ~265
-
-function getRailPos(i) {
-  const railSlots = getRailSlots();
-  const totalW = railSlots * (RAIL_W + RAIL_GAP) - RAIL_GAP;
-  const y = H - BTN_ZONE - HNG_ZONE - RAIL_ZONE + 8;
-  return { x: (W/2 - totalW/2) + i*(RAIL_W + RAIL_GAP), y };
-}
-
-function getSlotPos(i) {
-  const cols = 5;
-  const totalW = cols * (SLOT_W + SLOT_GAP) - SLOT_GAP;
-  const row = Math.floor(i / cols);
-  const col = i % cols;
-  const baseY = H - BTN_ZONE - HNG_ZONE + 10;
-  return { x: (W/2 - totalW/2) + col*(SLOT_W + SLOT_GAP), y: baseY + row*(SLOT_W + SLOT_GAP) };
-}
-
-function getPanelTop() { return H - PANEL_H; }
-
-function getRailSlots() { return meta.pilotSkills['pr8'] ? 4 : 3; }
-function getHangarSlots() { return (meta.pilotSkills['pr9'] ? 12 : 10); }
-
-function getStartCredits() { return 50 + (meta.pilotSkills['pr1'] ? 30 : 0); }
-function getStartShields() { return 100 + (meta.pilotSkills['pr5'] ? 10 : 0); }
-
-function initGame() {
-  credits = getStartCredits();
-  shields = getStartShields();
-  wave = 1;
-  heat = 0;
-  overheated = false;
-  chainCount = 1;
-  chainTimer = 0;
-  hangar = Array(getHangarSlots()).fill(null);
-  rails = Array(getRailSlots()).fill(null);
-  enemies = [];
-  bullets = [];
-  particles = [];
-  floaters = [];
-  boss = null;
-  dragging = null;
-  beamActive = false;
-  sellMode = false;
-  startPrepPhase();
-  document.getElementById('overlay').classList.remove('active');
-}
-
-// =============================================
-// WAVE SYSTEM
-// =============================================
-function startPrepPhase() {
-  phase = 'prep';
-  prepCountdown = wave <= 1 ? 8 : 6; // seconds
-  const pt = document.getElementById('prepTimer');
-  pt.style.opacity = '1';
-  announceWave();
-}
-
-function announceWave() {
-  const el = document.getElementById('waveAnnounce');
-  const isBoss = wave % 5 === 0;
-  el.textContent = isBoss ? `(!) BOSS WAVE ${wave} (!)` : `WAVE ${wave}`;
-  el.style.color = isBoss ? 'var(--red)' : 'var(--cyan)';
-  el.style.textShadow = isBoss
-    ? '0 0 30px var(--red), 0 0 60px var(--red)'
-    : '0 0 30px var(--cyan), 0 0 60px var(--cyan)';
-  el.style.opacity = '1';
-  setTimeout(() => el.style.opacity = '0', 2500);
-}
-
-function buildWaveEnemyDef() {
-  waveEnemyDef = [];
-  const isBoss = wave % 5 === 0;
-  if (isBoss) return; // boss handled separately
-
-  // Scale: wave 1 = 4 enemies, +2 per wave, max 30
-  const count = Math.min(4 + (wave - 1) * 2, 30);
-  const types = wave < 3 ? ['blue'] :
-                wave < 5 ? ['blue','purple'] :
-                wave < 8 ? ['blue','purple','yellow'] :
-                           ['blue','purple','yellow','red','orange'];
-
-  for (let i = 0; i < count; i++) {
-    const tId = types[Math.floor(Math.random() * types.length)];
-    const def = ENEMY_TYPES.find(e => e.id === tId);
-    const delay = 60 + i * Math.max(20, 80 - wave * 3); // frames
-    waveEnemyDef.push({ ...def, delay, spawned: false });
-  }
-  enemiesThisWave = count;
-  enemiesSpawned = 0;
-  enemiesKilled = 0;
-  waveComplete = false;
-}
-
-function startCombatPhase() {
-  phase = 'combat';
-  combatFrame = 0;
-  document.getElementById('prepTimer').style.opacity = '0';
-  buildWaveEnemyDef();
-
-  const isBoss = wave % 5 === 0;
-  if (isBoss) spawnBoss();
-}
-
-let frameCount = 0;
-let combatFrame = 0; // resets each combat phase
-
-function spawnBoss() {
-  const bossHp = 80 + wave * 30;
-  bossMaxHp = bossHp;
-  boss = {
-    x: W/2, y: -40,
-    hp: bossHp, maxHp: bossHp,
-    speed: 0.8 + wave * 0.05,
-    phase2: false,
-    dir: 1,
-    lateralSpeed: 1.5 + wave * 0.1,
-    size: 40,
-    reward: 50 + wave * 10,
-    color: '#ff2244',
-    burnTimer: 0,
-    burnDmg: 0,
-    slowTimer: 0,
-    armor: 0,
-  };
-  document.getElementById('bossHpBar').style.display = 'flex';
-}
-
-// =============================================
-// INPUT
-// =============================================
-canvas.addEventListener('pointerdown', e => {
-  const x = e.clientX, y = e.clientY;
-  const panelTop = getPanelTop();
-
-  // Check sell mode click anywhere
-  if (sellMode) {
-    hangar.forEach((slot, i) => {
-      if (!slot) return;
-      const p = getSlotPos(i);
-      if (x > p.x && x < p.x+SLOT_W && y > p.y && y < p.y+SLOT_W) {
-        credits += Math.floor(getTurretBuyCost(slot.type) * 0.4 * slot.level);
-        hangar[i] = null;
-      }
-    });
-    rails.forEach((slot, i) => {
-      if (!slot) return;
-      const p = getRailPos(i);
-      if (x > p.x && x < p.x+RAIL_W && y > p.y && y < p.y+RAIL_W) {
-        credits += Math.floor(getTurretBuyCost(slot.type) * 0.4 * slot.level);
-        rails[i] = null;
-      }
-    });
-    return;
-  }
-
-  // Try drag from hangar
-  let picked = false;
-  hangar.forEach((slot, i) => {
-    if (picked || !slot) return;
-    const p = getSlotPos(i);
-    if (x > p.x && x < p.x+SLOT_W && y > p.y && y < p.y+SLOT_W) {
-      dragging = slot; dragFromIdx = i; dragFromHangar = true;
-      hangar[i] = null; picked = true;
     }
     .signup h2 {
       margin-top: 0;
       margin-bottom: 10px;
       font-size: 24px;
-  });
-
-  // Try drag from rail
-  if (!picked) {
-    rails.forEach((slot, i) => {
-      if (picked || !slot) return;
-      const p = getRailPos(i);
-      if (x > p.x && x < p.x+RAIL_W && y > p.y && y < p.y+RAIL_W) {
-        dragging = slot; dragFromIdx = i; dragFromHangar = false;
-        rails[i] = null; picked = true;
-      }
-    });
-  }
-
-  // Only start beam if clicking in the play area (above panel)
-  if (!picked && y < panelTop) {
-    beamActive = true;
-    beamX = x; beamY = Math.min(y, panelTop - 2);
-  }
-  updateMouse(e);
-});
-
-canvas.addEventListener('pointermove', e => {
-  updateMouse(e);
-  if (beamActive) {
-    beamX = e.clientX;
-    beamY = Math.min(e.clientY, getPanelTop() - 2);
-  }
-  // Track hovered slot for tooltip
-  hoveredSlot = null;
-  if (!dragging) {
-    hangar.forEach((slot, i) => {
-      if (!slot) return;
-      const p = getSlotPos(i);
-      const cx = p.x + SLOT_W/2, cy = p.y + SLOT_W/2;
-      if (e.clientX > p.x && e.clientX < p.x+SLOT_W && e.clientY > p.y && e.clientY < p.y+SLOT_W)
-        hoveredSlot = { slot, cx, cy };
-    });
-    rails.forEach((slot, i) => {
-      if (!slot) return;
-      const p = getRailPos(i);
-      const cx = p.x + RAIL_W/2, cy = p.y + RAIL_W/2;
-      if (e.clientX > p.x && e.clientX < p.x+RAIL_W && e.clientY > p.y && e.clientY < p.y+RAIL_W)
-        hoveredSlot = { slot, cx, cy };
-    });
-  }
-});
-
-canvas.addEventListener('pointerup', e => {
-  updateMouse(e);
-  if (dragging) {
-    let dropped = false;
-
-    hangar.forEach((slot, i) => {
-      if (dropped) return;
-      const p = getSlotPos(i);
-      if (mouseX > p.x && mouseX < p.x+SLOT_W && mouseY > p.y && mouseY < p.y+SLOT_W) {
-        if (!slot) {
-          hangar[i] = dragging; dropped = true;
-        } else if (slot.level === dragging.level && slot.type === dragging.type && slot.level < getMaxLevel()) {
-          slot.level++;
-          gainTurretXP(slot.type, 8);
-          hangar[i] = slot; dropped = true;
-          spawnMergeEffect(p.x+25, p.y+25, TYPES[slot.type].color);
-        }
-      }
-    });
-
-    if (!dropped) {
-      rails.forEach((slot, i) => {
-        if (dropped) return;
-        const p = getRailPos(i);
-        if (mouseX > p.x && mouseX < p.x+RAIL_W && mouseY > p.y && mouseY < p.y+RAIL_W) {
-          if (!slot) { rails[i] = dragging; dropped = true; }
-          else if (slot.level === dragging.level && slot.type === dragging.type && slot.level < getMaxLevel()) {
-            slot.level++;
-            gainTurretXP(slot.type, 8);
-            rails[i] = slot; dropped = true;
-            spawnMergeEffect(p.x+32, p.y+32, TYPES[slot.type].color);
-          } else {
-            // swap
-            const old = rails[i]; rails[i] = dragging;
-            returnToHangar(old); dropped = true;
-          }
-        }
-      });
     }
     .signup p {
       margin-top: 0;
       color: #d1d5db;
-
-    if (!dropped) returnToHangar(dragging);
-    dragging = null;
-    selectedSlot = null; // clear selection when drag ends
-  } else {
-    // Tap (no drag) -- select the tapped slot for stats
-    let tapped = false;
-    hangar.forEach((slot, i) => {
-      if (tapped || !slot) return;
-      const p = getSlotPos(i);
-      if (mouseX > p.x && mouseX < p.x+SLOT_W && mouseY > p.y && mouseY < p.y+SLOT_W) {
-        selectedSlot = selectedSlot?.slot === slot ? null : { slot, x: p.x, y: p.y };
-        tapped = true;
-      }
-    });
-    rails.forEach((slot, i) => {
-      if (tapped || !slot) return;
-      const p = getRailPos(i);
-      if (mouseX > p.x && mouseX < p.x+RAIL_W && mouseY > p.y && mouseY < p.y+RAIL_W) {
-        selectedSlot = selectedSlot?.slot === slot ? null : { slot, x: p.x, y: p.y };
-        tapped = true;
-      }
-    });
-    if (!tapped) selectedSlot = null; // tapped empty space = deselect
-  }
-  beamActive = false;
-});
-
-function updateMouse(e) { mouseX = e.clientX; mouseY = e.clientY; }
-
-function returnToHangar(item) {
-  const idx = hangar.findIndex(s => s === null);
-  if (idx !== -1) hangar[idx] = item;
-}
-
-function getMaxLevel() { return meta.pilotSkills['pr7'] ? 4 : 3; }
-
-// =============================================
-// BUYING & SELLING
-// =============================================
-function getTurretBuyCost(type) {
-  const base = { kinetic:15, energy:20, plasma:25 }[type];
-  const disc = meta.pilotSkills['pr6'] ? 0.9 : 1;
-  return Math.floor(base * disc);
-}
-
-function buyTurret() {
-  const cost = 15;
-  if (credits < cost) return;
-  const idx = hangar.findIndex(s => s === null);
-  if (idx === -1) return;
-  credits -= cost;
-  // Weighted random -- pilot skills can bias odds
-  const weights = {
-    kinetic: 1 + (meta.pilotSkills['pw_k'] || 0) * 0.5,
-    energy:  1 + (meta.pilotSkills['pw_e'] || 0) * 0.5,
-    plasma:  1 + (meta.pilotSkills['pw_p'] || 0) * 0.5,
-  };
-  const total = weights.kinetic + weights.energy + weights.plasma;
-  let r = Math.random() * total;
-  let type = 'kinetic';
-  if ((r -= weights.kinetic) < 0) type = 'kinetic';
-  else if ((r -= weights.energy) < 0) type = 'energy';
-  else type = 'plasma';
-  hangar[idx] = { type, level: 1, timer: 0, xp: 0 };
-}
-
-function toggleSellMode() {
-  sellMode = !sellMode;
-  document.querySelector('.btn-sell').style.background = sellMode ? 'var(--red)' : '';
-  document.querySelector('.btn-sell').style.color = sellMode ? '#000' : '';
-}
-
-// =============================================
-// PARTICLES & EFFECTS
-// =============================================
-function spawnParticles(x, y, color, count, speed=6) {
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const s = (Math.random() * 0.5 + 0.5) * speed;
-    particles.push({ x, y, vx: Math.cos(angle)*s, vy: Math.sin(angle)*s, life: 1, color, size: Math.random()*3+1 });
-  }
-}
-
-function spawnMergeEffect(x, y, color) {
-  for (let i = 0; i < 20; i++) {
-    const angle = (i / 20) * Math.PI * 2;
-    particles.push({ x, y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5, life: 1, color, size: 2 });
-  }
-}
-
-function spawnFloater(x, y, text, color) {
-  floaters.push({ x, y, text, color, life: 1, vy: -1.5 });
-}
-
-// =============================================
-// CHAIN KILL
-// =============================================
-function registerKill(x, y, reward, type) {
-  const now = Date.now();
-  const chainTimeMs = meta.pilotSkills['pr4'] ? chainTimeout * 1.5 : chainTimeout;
-  if (now - lastKillTime < chainTimeMs) {
-    chainCount = Math.min(chainCount + 1, 8);
-  } else {
-    chainCount = 1;
-  }
-  lastKillTime = now;
-
-  const bonus = meta.pilotSkills['pr2'] ? 1 : 0;
-  const earned = Math.floor(reward * chainCount) + bonus;
-  credits += earned;
-  gainPilotXP(1 + Math.floor(chainCount / 3));
-  gainTurretXP(type, 2);
-
-  spawnFloater(x, y, `+$${earned}${chainCount > 1 ? ` x${chainCount}` : ''}`, chainCount > 2 ? '#ffe600' : '#00ff88');
-
-  if (chainCount >= 3) {
-    const cp = document.getElementById('chainPopup');
-    cp.textContent = `CHAIN x${chainCount}!`;
-    cp.style.left = (x - 50) + 'px';
-    cp.style.top = (y - 40) + 'px';
-    cp.style.opacity = '1';
-    setTimeout(() => cp.style.opacity = '0', 800);
-  }
-}
-
-// =============================================
-// XP & RANKS
-// =============================================
-function gainPilotXP(amount) {
-  meta.pilotXP += amount;
-  const maxRank = PILOT_XP_PER_RANK.length;
-  while (meta.pilotRank < maxRank && meta.pilotXP >= getNextPilotXP()) {
-    meta.pilotXP -= getNextPilotXP();
-    meta.pilotRank++;
-    meta.skillPoints = (meta.skillPoints || 0) + 1;
-    spawnFloater(W/2, H/2 - 60, 'PILOT RANK UP! +1 SKILL PT', '#ffe600');
-  }
-  saveMeta();
-}
-
-function gainTurretXP(type, amount) {
-  if (!type) return;
-  meta.turretXP[type] += amount;
-  const maxRank = TURRET_XP_PER_RANK.length;
-  while (meta.turretRank[type] < maxRank && meta.turretXP[type] >= getNextTurretXP(type)) {
-    meta.turretXP[type] -= getNextTurretXP(type);
-    meta.turretRank[type]++;
-    meta.turretSkillPoints = meta.turretSkillPoints || { kinetic:0, energy:0, plasma:0 };
-    meta.turretSkillPoints[type] = (meta.turretSkillPoints[type] || 0) + 1;
-    spawnFloater(W/2, H/2 - 40, type.toUpperCase() + ' RANK UP! +1 SKILL PT', TYPES[type].color);
-  }
-  saveMeta();
-}
-
-function getNextPilotXP() {
-  return PILOT_XP_PER_RANK[Math.min(meta.pilotRank, PILOT_XP_PER_RANK.length-1)];
-}
-
-function getNextTurretXP(type) {
-  return TURRET_XP_PER_RANK[Math.min(meta.turretRank[type], TURRET_XP_PER_RANK.length-1)];
-}
-
-// =============================================
-// DAMAGE CALC
-// =============================================
-function calcDamage(bullet, enemy) {
-  let dmg = bullet.power;
-  if (enemy.weakTo === bullet.type) dmg *= 1.6;
-  if (enemy.armor === bullet.type) dmg *= 0.5;
-  // Skill modifiers
-  if (bullet.type === 'energy' && meta.turretSkills.energy['e8']) dmg *= 1.3;
-  if (bullet.type === 'plasma' && meta.turretSkills.plasma['p8']) dmg *= (1 + 0.25 * (wave / 5));
-  if (bullet.type === 'kinetic' && meta.turretSkills.kinetic['k9'] && Math.random() < 0.15) dmg *= 2; // crit
-  return dmg;
-}
-
-// =============================================
-// UPDATE
-// =============================================
-let prepTimer = 0;
-let ionPulseTimer = 0;
-
-function update() {
-  frameCount++;
-
-  // -- PREP PHASE --
-  if (phase === 'prep') {
-    const hasRailTurret = rails.some(s => s !== null);
-    prepTimer++;
-    if (prepTimer >= 60) {
-      prepTimer = 0;
-      const pt = document.getElementById('prepTimer');
-      if (!hasRailTurret) {
-        pt.textContent = 'PLACE A TURRET IN THE RAILS TO DEPLOY';
-        pt.style.color = 'var(--red)';
-      } else {
-        prepCountdown--;
-        pt.style.color = 'var(--yellow)';
-        pt.textContent = `DEPLOYING IN ${prepCountdown}s -- BUY & MERGE`;
-        if (prepCountdown <= 0) startCombatPhase();
-      }
     }
     form {
       display: grid;
       gap: 14px;
       margin-top: 18px;
-    updateParticles();
-    updateFloaters();
-    // HUD still updates during prep so credits are visible
-    document.getElementById('waveVal').textContent = wave;
-    document.getElementById('creditsVal').textContent = '$' + credits;
-    document.getElementById('shieldsVal').textContent = shields + '%';
-    document.getElementById('chainVal').textContent = 'x' + chainCount;
-    document.getElementById('rankVal').textContent = meta.pilotRank;
-    document.getElementById('shieldFill').style.width = Math.max(0, shields) + '%';
-    return;
-  }
-
-  // -- COMBAT PHASE --
-  combatFrame++;
-
-  // Spawn enemies using combatFrame so delays are relative to wave start
-  waveEnemyDef.forEach(def => {
-    if (!def.spawned && combatFrame >= def.delay) {
-      spawnEnemy(def);
-      def.spawned = true;
-      enemiesSpawned++;
     }
     label {
       font-size: 14px;
       font-weight: bold;
-  });
-
-  // Beam
-  updateBeam();
-
-  // Turrets fire
-  updateTurrets();
-
-  // Bullets
-  updateBullets();
-
-  // Enemies
-  updateEnemies();
-
-  // Boss
-  if (boss) updateBoss();
-
-  // Ion storm
-  if (meta.turretSkills.energy['e6']) {
-    ionPulseTimer++;
-    if (ionPulseTimer >= 600) {
-      ionPulseTimer = 0;
-      enemies.forEach(en => { en.hp -= 8; spawnParticles(en.x, en.y, '#cc00ff', 4); });
     }
     input {
       width: 100%;
@@ -1478,59 +94,6 @@ function update() {
       background: rgba(17,24,39,0.7);
       color: #fff;
       font-size: 16px;
-  }
-
-  // Particles & floaters
-  updateParticles();
-  updateFloaters();
-
-  // Chain decay
-  if (Date.now() - lastKillTime > (meta.pilotSkills['pr4'] ? chainTimeout * 1.5 : chainTimeout) + 200) {
-    chainCount = 1;
-  }
-
-  // Wave complete check -- only trigger once
-  if (phase === 'combat' && !boss && !waveComplete && enemiesSpawned >= enemiesThisWave && enemies.length === 0) {
-    waveComplete = true;
-    const waveBonus = 10 + wave * 5;
-    credits += waveBonus;
-    spawnFloater(W/2, H/2, `WAVE CLEAR +$${waveBonus}`, '#ffe600');
-    gainPilotXP(5 + wave);
-    wave++;
-    setTimeout(startPrepPhase, 1500);
-  }
-
-  // Update HUD
-  document.getElementById('waveVal').textContent = wave;
-  document.getElementById('creditsVal').textContent = '$' + credits;
-  document.getElementById('shieldsVal').textContent = shields + '%';
-  document.getElementById('chainVal').textContent = 'x' + chainCount;
-  document.getElementById('rankVal').textContent = meta.pilotRank;
-  document.getElementById('shieldFill').style.width = Math.max(0, shields) + '%';
-  document.getElementById('heatFill').style.width = heat + '%';
-  if (overheated) document.getElementById('heatFill').style.background = 'var(--red)';
-  else document.getElementById('heatFill').style.background = '';
-  // Skill point badge
-  const totalPts = (meta.skillPoints || 0) + Object.values(meta.turretSkillPoints || {}).reduce((a,b) => a+b, 0);
-  const badge = document.getElementById('skillPtBadge');
-  if (badge) { badge.style.display = totalPts > 0 ? 'block' : 'none'; badge.textContent = totalPts + ' PT' + (totalPts !== 1 ? 'S' : '') + ' AVAIL'; }
-}
-
-function updateBeam() {
-  if (!beamActive || overheated || dragging || phase !== 'combat') return;
-  const heatRate = meta.turretSkills.plasma['p7'] ? 0.9 : 1.2;
-  heat += heatRate;
-  if (heat >= 100) { heat = 100; overheated = true; beamActive = false; return; }
-
-  const beamDmg = meta.turretSkills.energy['e8'] ? 0.7 : 0.5;
-  const beamRadius = 30 * (1 + (meta.turretSkills.energy['e1'] ? 0.3 : 0));
-
-  enemies.forEach(en => {
-    if (Math.hypot(en.x - beamX, en.y - beamY) < beamRadius) {
-      let dmg = beamDmg;
-      if (meta.turretSkills.energy['e4'] && heat > 60) dmg *= (1 + 0.4);
-      en.hp -= dmg;
-      if (Math.random() < 0.1) spawnParticles(en.x, en.y, '#ff00cc', 1, 3);
     }
     input::placeholder { color: #9ca3af; }
     button {
@@ -1543,48 +106,6 @@ function updateBeam() {
       background: #60a5fa;
       color: #0f172a;
       transition: transform 0.15s ease, opacity 0.15s ease;
-  });
-  if (boss && Math.hypot(boss.x - beamX, boss.y - beamY) < beamRadius * 1.5) {
-    boss.hp -= beamDmg * 0.5;
-  }
-}
-
-function updateTurrets() {
-  const allTurrets = [
-    ...rails.map((s,i) => s ? { slot:s, pos:getRailPos(i), isRail:true } : null),
-  ].filter(Boolean);
-
-  allTurrets.forEach(({ slot, pos }) => {
-    slot.timer++;
-    const rank = meta.turretRank[slot.type] || 1;
-    const fireRateBonus = meta.turretSkills[slot.type]?.[slot.type[0]+'1'] ? 1.25 : 1;
-    const fireRateBonus2 = meta.turretSkills[slot.type]?.[slot.type[0]+'4'] ? 1.5 : 1;
-    const finalRate = fireRateBonus * fireRateBonus2;
-    const fireInterval = Math.floor((40 - slot.level * 5 - rank * 2) / finalRate);
-
-    if (slot.timer >= Math.max(fireInterval, 8)) {
-      slot.timer = 0;
-      gainTurretXP(slot.type, 1); // per fire
-
-      // Find target -- closest enemy within range
-      const range = getTurretRange(slot);
-      const turretX = pos.x + RAIL_W/2;
-      const turretY = pos.y + RAIL_W/2;
-      let target = null, minDist = range;
-      enemies.forEach(en => {
-        const d = Math.hypot(en.x - turretX, en.y - turretY);
-        if (d < minDist) { minDist = d; target = en; }
-      });
-      if (!target && boss && Math.hypot(boss.x - turretX, boss.y - turretY) < range) target = boss;
-
-      if (target) {
-        const angle = Math.atan2(target.y - turretY, target.x - turretX);
-        const spd = 12 * (1 + (meta.turretSkills[slot.type]?.[slot.type[0]+'7'] ? 0.5 : 0));
-        fireBullet(turretX, turretY, angle, spd, slot);
-        if (meta.turretSkills[slot.type]?.[slot.type[0]+'5'] && slot.type === 'kinetic') {
-          fireBullet(turretX, turretY, angle + 0.15, spd, slot);
-        }
-      }
     }
     button:hover { transform: translateY(-1px); }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -1592,37 +113,6 @@ function updateTurrets() {
       min-height: 24px;
       font-size: 14px;
       margin-top: 6px;
-  });
-}
-
-// Range per type (pixels). Kinetic=straight lane, Energy=wide, Plasma=short AOE
-const TURRET_RANGE = { kinetic: 280, energy: 380, plasma: 200 };
-
-function getTurretRange(slot) {
-  const base = TURRET_RANGE[slot.type] || 300;
-  const rankBonus = (meta.turretRank[slot.type] - 1) * 20;
-  return base + rankBonus + slot.level * 15;
-}
-
-function fireBullet(x, y, angle, speed, slot) {
-  bullets.push({
-    x, y,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed,
-    type: slot.type,
-    power: slot.level * (1 + (meta.turretRank[slot.type]-1) * 0.15),
-    pierce: meta.turretSkills[slot.type]?.[slot.type[0]+'2'] ? 1 : 0,
-    life: 120,
-  });
-}
-
-function updateBullets() {
-  for (let i = bullets.length-1; i >= 0; i--) {
-    const b = bullets[i];
-    b.x += b.vx; b.y += b.vy;
-    b.life--;
-    if (b.life <= 0 || b.x < 0 || b.x > W || b.y < 0 || b.y > H) {
-      bullets.splice(i, 1); continue;
     }
     .good { color: #86efac; }
     .bad { color: #fca5a5; }
@@ -1631,489 +121,28 @@ function updateBullets() {
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 18px;
       padding: 40px 0;
-
-    let bulletDead = false;
-    for (let j = enemies.length-1; j >= 0; j--) {
-      const en = enemies[j];
-      if (Math.hypot(en.x - b.x, en.y - b.y) < 18) {
-        const dmg = calcDamage(b, en);
-        en.hp -= dmg;
-
-        if (b.type === 'energy' && meta.turretSkills.energy['e2']) {
-          en.slowTimer = 90; en.slowAmt = 0.2;
-        }
-        if (b.type === 'plasma' && meta.turretSkills.plasma['p2']) {
-          en.burnTimer = 120;
-          en.burnDmg = 0.3 * (1 + (meta.turretSkills.plasma['p4'] ? 0.5 : 0));
-        }
-        if (b.type === 'plasma' && meta.turretSkills.plasma['p9'] && Math.random() < 0.05) {
-          en.hp = -9999;
-        }
-
-        spawnParticles(en.x, en.y, TYPES[b.type].color, 2, 4);
-
-        if (en.hp <= 0) {
-          killEnemy(j);
-        }
-
-        if (b.pierce > 0) {
-          b.pierce--;
-        } else {
-          bullets.splice(i, 1);
-          bulletDead = true;
-        }
-        break;
-      }
     }
     .panel {
       padding: 22px;
-
-    if (!bulletDead && boss && Math.hypot(boss.x - b.x, boss.y - b.y) < boss.size) {
-      const dmg = calcDamage(b, boss);
-      boss.hp -= dmg;
-      spawnParticles(boss.x, boss.y, TYPES[b.type].color, 3, 5);
-      bullets.splice(i, 1);
     }
     .panel h3 {
       margin-top: 0;
       margin-bottom: 10px;
       font-size: 21px;
-  }
-}
-
-function updateEnemies() {
-  for (let i = enemies.length-1; i >= 0; i--) {
-    const en = enemies[i];
-
-    // Burn tick
-    if (en.burnTimer > 0) {
-      en.burnTimer--;
-      en.hp -= en.burnDmg;
-      if (meta.turretSkills.plasma['p5']) en.slowTimer = 30;
     }
     .panel p,
     .panel li {
       color: #d1d5db;
-
-    // Check death after burn
-    if (en.hp <= 0) { killEnemy(i); continue; }
-
-    const slowMult = en.slowTimer > 0 ? (1 - (en.slowAmt || 0.2)) : 1;
-    if (en.slowTimer > 0) en.slowTimer--;
-
-    en.y += en.speed * slowMult;
-    if (en.id === 'yellow') en.driftX = Math.sin(frameCount * 0.05 + en.phase) * 0.5;
-    en.x += (en.driftX || 0);
-    en.angle += en.rotSpeed * (en.slowTimer > 0 ? 0.4 : 1);
-
-    if (en.y > getPanelTop()) {
-      shields -= 8;
-      enemies.splice(i, 1);
-      spawnParticles(en.x, getPanelTop(), '#ff2244', 8, 5);
-      if (shields <= 0) gameOver();
     }
     ul {
       padding-left: 18px;
       margin-bottom: 0;
-  }
-}
-
-function killEnemy(idx) {
-  const en = enemies[idx];
-  if (!en) return;
-  spawnParticles(en.x, en.y, en.color, 10, 6);
-  registerKill(en.x, en.y, en.reward, 'kinetic'); // simplified; could pass last bullet type
-  enemiesKilled++;
-  enemies.splice(idx, 1);
-}
-
-function updateBoss() {
-  // Movement
-  boss.y += boss.speed;
-  boss.x += boss.lateralSpeed * boss.dir;
-  if (boss.x < 60 || boss.x > W-60) boss.dir *= -1;
-
-  // Phase 2 at half health
-  if (!boss.phase2 && boss.hp < boss.maxHp * 0.5) {
-    boss.phase2 = true;
-    boss.speed *= 1.4;
-    boss.lateralSpeed *= 1.6;
-    spawnParticles(boss.x, boss.y, '#ff2244', 30, 8);
-    spawnFloater(boss.x, boss.y - 50, 'PHASE 2!', '#ff2244');
-    // Minion spawns
-    for (let i = 0; i < 3; i++) {
-      const def = ENEMY_TYPES[0];
-      spawnEnemy({ ...def, x: boss.x + (i-1)*80, delay:0 });
     }
     .footer {
       padding: 20px 0 56px;
       text-align: center;
       color: #9ca3af;
       font-size: 14px;
-  }
-
-  // Burn
-  if (boss.burnTimer > 0) { boss.burnTimer--; boss.hp -= boss.burnDmg; }
-  if (boss.slowTimer > 0) boss.slowTimer--;
-
-  // Update HP bar
-  const pct = Math.max(0, boss.hp / boss.maxHp * 100);
-  document.getElementById('bossHpFill').style.width = pct + '%';
-
-  // Boss reaches base -- instant game over
-  if (boss.y > getPanelTop()) {
-    spawnParticles(W/2, getPanelTop(), '#ff2244', 60, 10);
-    boss = null;
-    document.getElementById('bossHpBar').style.display = 'none';
-    shields = 0;
-    gameOver();
-    return;
-  }
-
-  if (boss.hp <= 0) {
-    killBoss();
-  }
-}
-
-function killBoss() {
-  spawnParticles(boss.x, boss.y, '#ff2244', 50, 10);
-  spawnParticles(boss.x, boss.y, '#ff6600', 30, 8);
-  const reward = boss.reward;
-  credits += reward;
-  gainPilotXP(15);
-  spawnFloater(boss.x, boss.y - 60, `BOSS DOWN! +$${reward}`, '#ff2244');
-  boss = null;
-  document.getElementById('bossHpBar').style.display = 'none';
-
-  // Boss reward: extra hangar slot unlock notification
-  showBossReward();
-  enemiesThisWave = 0; // trigger wave complete next frame
-  enemiesSpawned = 0;
-}
-
-function showBossReward() {
-  // Permanent boss kill credit reward
-  meta.highScore = Math.max(meta.highScore, wave);
-  saveMeta();
-}
-
-function spawnEnemy(def) {
-  const speed = (def.speedMult * (0.8 + wave * 0.08)) || 1;
-  enemies.push({
-    ...def,
-    x: def.x || (60 + Math.random() * (W - 120)),
-    y: def.y || -20,
-    hp: (def.hpMult * (3 + wave * 1.2)),
-    maxHp: (def.hpMult * (3 + wave * 1.2)),
-    speed,
-    angle: Math.random() * Math.PI * 2,
-    rotSpeed: (Math.random() * 0.03 + 0.01) * (Math.random() < 0.5 ? 1 : -1),
-    burnTimer: 0, burnDmg: 0,
-    slowTimer: 0, slowAmt: 0,
-    phase: Math.random() * Math.PI * 2,
-    driftX: 0,
-  });
-}
-
-function updateParticles() {
-  for (let i = particles.length-1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += p.vx; p.y += p.vy;
-    p.vx *= 0.92; p.vy *= 0.92;
-    p.life -= 0.025;
-    if (p.life <= 0) particles.splice(i, 1);
-  }
-}
-
-function updateFloaters() {
-  for (let i = floaters.length-1; i >= 0; i--) {
-    const f = floaters[i];
-    f.y += f.vy;
-    f.life -= 0.018;
-    if (f.life <= 0) floaters.splice(i, 1);
-  }
-}
-
-// =============================================
-// DRAW
-// =============================================
-function draw() {
-  ctx.fillStyle = '#030610';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.strokeStyle = 'rgba(0,20,60,0.6)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 40) {
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-  }
-  for (let y = 0; y < getPanelTop(); y += 40) {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-  }
-
-  ctx.strokeStyle = 'rgba(0,245,255,0.2)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([8, 8]);
-  ctx.beginPath(); ctx.moveTo(0, getPanelTop()); ctx.lineTo(W, getPanelTop()); ctx.stroke();
-  ctx.setLineDash([]);
-
-  enemies.forEach(en => drawEnemy(en));
-  if (boss) drawBoss();
-
-  bullets.forEach(b => {
-    const col = TYPES[b.type]?.color || '#fff';
-    ctx.shadowBlur = 8; ctx.shadowColor = col;
-    ctx.fillStyle = col;
-    ctx.fillRect(b.x - 2, b.y - 5, 4, 10);
-    ctx.shadowBlur = 0;
-  });
-
-  if (beamActive && !overheated && !dragging && phase === 'combat') {
-    const beamColor = '#ff00cc';
-    const bw = 3 + (meta.turretSkills.energy['e1'] ? 2 : 0);
-    ctx.shadowBlur = 20; ctx.shadowColor = beamColor;
-    ctx.strokeStyle = beamColor; ctx.lineWidth = bw;
-    ctx.beginPath(); ctx.moveTo(W/2, getPanelTop()); ctx.lineTo(beamX, beamY); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(W/2, getPanelTop()); ctx.lineTo(beamX, beamY); ctx.stroke();
-    ctx.shadowBlur = 0;
-  }
-
-  // Draw bottom panel background on canvas (so it's behind slots, not over them)
-  const panelTop = getPanelTop();
-  const grad = ctx.createLinearGradient(0, panelTop, 0, H);
-  grad.addColorStop(0, 'rgba(0,5,15,0)');
-  grad.addColorStop(0.2, 'rgba(0,5,15,0.92)');
-  grad.addColorStop(1,   'rgba(0,2,8,0.98)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, panelTop, W, 250);
-
-  // Separator line
-  ctx.strokeStyle = 'rgba(0,245,255,0.25)';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6, 6]);
-  ctx.beginPath(); ctx.moveTo(0, panelTop); ctx.lineTo(W, panelTop); ctx.stroke();
-  ctx.setLineDash([]);
-
-  const railSlots = getRailSlots();
-  for (let i = 0; i < railSlots; i++) {
-    const p = getRailPos(i);
-    const slot = rails[i];
-    drawSlotBox(p.x, p.y, RAIL_W, RAIL_W, slot ? TYPES[slot.type].color : 'rgba(0,245,255,0.6)', sellMode && slot);
-    if (slot) drawTurret(p.x + RAIL_W/2, p.y + RAIL_W/2, slot, true);
-  }
-
-  const hangarSlots = getHangarSlots();
-  for (let i = 0; i < hangarSlots; i++) {
-    const p = getSlotPos(i);
-    const slot = hangar[i];
-    drawSlotBox(p.x, p.y, SLOT_W, SLOT_W, slot ? TYPES[slot.type].color : 'rgba(0,245,255,0.35)', sellMode && slot);
-    if (slot) drawTurret(p.x + SLOT_W/2, p.y + SLOT_W/2, slot, false);
-  }
-
-  particles.forEach(p => {
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = p.life;
-    ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
-  });
-  ctx.globalAlpha = 1;
-
-  floaters.forEach(f => {
-    ctx.globalAlpha = Math.max(0, f.life);
-    ctx.fillStyle = f.color;
-    ctx.font = 'bold 13px "Share Tech Mono"';
-    ctx.textAlign = 'center';
-    ctx.fillText(f.text, f.x, f.y);
-  });
-  ctx.globalAlpha = 1;
-  ctx.textAlign = 'left';
-
-  // Draw range rings for hovered/selected rail turrets -- drawn before slots so rings are behind
-  const drawRangeRing = (slot, railIdx) => {
-    const p = getRailPos(railIdx);
-    const cx = p.x + RAIL_W/2, cy = p.y + RAIL_W/2;
-    const range = getTurretRange(slot);
-    const col = TYPES[slot.type].color;
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, range, 0, Math.PI * 2);
-    ctx.strokeStyle = col;
-    ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.18;
-    ctx.setLineDash([4, 6]);
-    ctx.stroke();
-    ctx.globalAlpha = 0.05;
-    ctx.fillStyle = col;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.setLineDash([]);
-    ctx.restore();
-  };
-
-  rails.forEach((slot, i) => {
-    if (!slot) return;
-    const p = getRailPos(i);
-    const isHovered = hoveredSlot && hoveredSlot.slot === slot;
-    const isSelected = selectedSlot && selectedSlot.slot === slot;
-    if (isHovered || isSelected) drawRangeRing(slot, i);
-  });
-
-  if (dragging) drawTurret(mouseX, mouseY, dragging, false);
-
-  // Hover tooltip -- type name above slot
-  if (hoveredSlot && !dragging) {
-    const { slot, cx, cy } = hoveredSlot;
-    const col = TYPES[slot.type].color;
-    ctx.save();
-    ctx.font = 'bold 10px "Orbitron"';
-    ctx.textAlign = 'center';
-    ctx.shadowBlur = 8; ctx.shadowColor = col;
-    ctx.fillStyle = col;
-    ctx.fillText(slot.type.toUpperCase() + ' LV' + slot.level, cx, cy - SLOT_W/2 - 6);
-    ctx.restore();
-  }
-
-  // Selected turret stats panel -- drawn on left side
-  if (selectedSlot) {
-    drawStatsPanel(selectedSlot.slot);
-  }
-
-  // beam mode indicator hidden per design
-}
-
-function drawSlotBox(x, y, w, h, color, highlight) {
-  // Subtle fill so slots are visible against dark background
-  ctx.fillStyle = 'rgba(0,20,40,0.6)';
-  ctx.fillRect(x, y, w, h);
-
-  if (highlight) {
-    ctx.shadowBlur = 12; ctx.shadowColor = '#ff2244';
-    ctx.strokeStyle = '#ff2244';
-    ctx.lineWidth = 2;
-  } else {
-    ctx.shadowBlur = 6; ctx.shadowColor = color;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-  }
-  ctx.strokeRect(x, y, w, h);
-  ctx.shadowBlur = 0;
-  ctx.lineWidth = 1;
-}
-
-function drawStatsPanel(slot) {
-  const col = TYPES[slot.type].color;
-  const rank = meta.turretRank[slot.type] || 1;
-  const px = 12, py = getPanelTop() - 230;
-  const pw = 160, ph = 225;
-
-  // Computed stats
-  const fireInterval = Math.max(8, 40 - slot.level * 5 - rank * 2);
-  const baseDmg      = slot.level * (1 + (rank - 1) * 0.15);
-  const fireRate     = 60 / fireInterval;
-  const dps          = (baseDmg * fireRate).toFixed(1);
-  const hasBurn      = slot.type === 'plasma' && meta.turretSkills.plasma['p2'];
-  const burnDmg      = hasBurn ? (0.3 * (1 + (meta.turretSkills.plasma['p4'] ? 0.5 : 0))).toFixed(2) : '--';
-  const hasAoe       = slot.type === 'plasma' && meta.turretSkills.plasma['p1'];
-  const aoeRad       = hasAoe ? Math.round(20 * (1 + 0.2)) + 'px' : '--';
-  const hasArc       = slot.type === 'energy' && meta.turretSkills.energy['e5'];
-  const hasSlow      = slot.type === 'energy' && meta.turretSkills.energy['e2'];
-  const weakLabel    = { kinetic:'BLUE', energy:'PURPLE', plasma:'RED' }[slot.type];
-  const armorLabel   = { kinetic:'PURPLE', energy:'RED', plasma:'BLUE' }[slot.type];
-
-  ctx.save();
-
-  // Panel bg
-  ctx.fillStyle = 'rgba(0,6,18,0.96)';
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 1.5;
-  ctx.shadowBlur = 12; ctx.shadowColor = col;
-  ctx.beginPath();
-  ctx.roundRect(px, py, pw, ph, 6);
-  ctx.fill(); ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Header
-  const cx = px + pw / 2;
-  drawTurret(cx, py + 24, slot, false);
-
-  ctx.textAlign = 'center';
-  ctx.font = 'bold 11px "Orbitron"';
-  ctx.fillStyle = col;
-  ctx.fillText(slot.type.toUpperCase(), cx, py + 46);
-
-  ctx.font = '9px "Share Tech Mono"';
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.fillText('LV' + slot.level + '  RNK' + rank, cx, py + 58);
-
-  // Divider
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(px+8, py+64); ctx.lineTo(px+pw-8, py+64); ctx.stroke();
-
-  // Stats rows
-  const rows = [
-    { label:'DMG',     val: baseDmg.toFixed(1),           color: col },
-    { label:'FIRE/S',  val: fireRate.toFixed(1),           color: col },
-    { label:'DPS',     val: dps,                           color: '#ffe600' },
-    { label:'RANGE',   val: Math.round(getTurretRange(slot)) + 'px', color: col },
-    { label:'DOT',     val: burnDmg,                       color: slot.type==='plasma' ? '#ff6600' : 'rgba(255,255,255,0.2)' },
-    { label:'AOE',     val: aoeRad,                        color: slot.type==='plasma' ? '#ff6600' : 'rgba(255,255,255,0.2)' },
-    { label:'ARC',     val: hasArc ? '2 TARGETS' : '--',  color: slot.type==='energy' ? '#cc00ff' : 'rgba(255,255,255,0.2)' },
-    { label:'SLOW',    val: hasSlow ? '-20%' : '--',       color: slot.type==='energy' ? '#00f5ff' : 'rgba(255,255,255,0.2)' },
-    { label:'WEAK VS', val: weakLabel,                     color: '#00ff88' },
-    { label:'ARMOR',   val: armorLabel,                    color: '#ff4466' },
-    { label:'XP',      val: meta.turretXP[slot.type] + '/' + getNextTurretXP(slot.type), color: 'rgba(255,255,255,0.4)' },
-  ];
-
-  ctx.textAlign = 'left';
-  rows.forEach((r, i) => {
-    const sy = py + 76 + i * 16;
-    ctx.font = '8px "Share Tech Mono"';
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.fillText(r.label, px + 10, sy);
-    ctx.textAlign = 'right';
-    ctx.fillStyle = r.color;
-    ctx.font = 'bold 9px "Share Tech Mono"';
-    ctx.fillText(r.val, px + pw - 10, sy);
-    ctx.textAlign = 'left';
-  });
-
-  ctx.restore();
-}
-
-function drawEnemy(en) {
-  const flash = en.burnTimer > 0 && frameCount % 6 < 3;
-  const col = flash ? '#ff8800' : en.color;
-  const x = en.x, y = en.y;
-
-  // Draw rotated shape
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(en.angle || 0);
-  ctx.shadowBlur = 8; ctx.shadowColor = col;
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  if (en.shape === 'rect') {
-    ctx.strokeRect(-10, -10, 20, 20);
-  } else if (en.shape === 'diamond') {
-    ctx.moveTo(0, -14); ctx.lineTo(14, 0); ctx.lineTo(0, 14); ctx.lineTo(-14, 0); ctx.closePath();
-    ctx.stroke();
-  } else if (en.shape === 'triangle') {
-    ctx.moveTo(0, -14); ctx.lineTo(14, 10); ctx.lineTo(-14, 10); ctx.closePath();
-    ctx.stroke();
-  } else if (en.shape === 'circle') {
-    // circles don't need rotation but add inner spin line
-    ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(10, 0);
-    ctx.stroke();
-  } else if (en.shape === 'star') {
-    for (let s = 0; s < 5; s++) {
-      const a = (s/5)*Math.PI*2 - Math.PI/2;
-      const a2 = a + Math.PI/5;
-      ctx.moveTo(Math.cos(a)*14, Math.sin(a)*14);
-      ctx.lineTo(Math.cos(a2)*6, Math.sin(a2)*6);
     }
     .donate-button {
       display: inline-block;
@@ -2124,175 +153,10 @@ function drawEnemy(en) {
       padding: 12px 16px;
       border-radius: 12px;
       margin-top: 8px;
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // Health bar and slow indicator -- drawn unrotated above enemy
-  ctx.shadowBlur = 0;
-  const pct = Math.max(0, en.hp / en.maxHp);
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
-  ctx.fillRect(x-12, y-22, 24, 4);
-  ctx.fillStyle = pct > 0.5 ? '#00ff88' : pct > 0.25 ? '#ffe600' : '#ff2244';
-  ctx.fillRect(x-12, y-22, 24*pct, 4);
-
-  if (en.slowTimer > 0) {
-    ctx.strokeStyle = 'rgba(0,245,255,0.5)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(x, y, 13, 0, Math.PI*2); ctx.stroke();
-  }
-}
-
-function drawBoss() {
-  const b = boss;
-  const pulse = Math.sin(frameCount * 0.1) * 3;
-  const col = b.phase2 ? '#ff6600' : '#ff2244';
-  ctx.shadowBlur = 20; ctx.shadowColor = col;
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 3;
-
-  // Boss shape: hexagon
-  ctx.beginPath();
-  for (let s = 0; s < 6; s++) {
-    const a = (s/6)*Math.PI*2;
-    const r = b.size + pulse;
-    if (s === 0) ctx.moveTo(b.x + Math.cos(a)*r, b.y + Math.sin(a)*r);
-    else ctx.lineTo(b.x + Math.cos(a)*r, b.y + Math.sin(a)*r);
-  }
-  ctx.closePath(); ctx.stroke();
-
-  // Inner ring
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, 20 + pulse*0.5, 0, Math.PI*2);
-  ctx.stroke();
-
-  ctx.fillStyle = col;
-  ctx.font = 'bold 10px "Share Tech Mono"';
-  ctx.textAlign = 'center';
-  ctx.fillText('BOSS', b.x, b.y + 4);
-  ctx.textAlign = 'left';
-
-  ctx.shadowBlur = 0;
-}
-
-function drawTurret(x, y, slot, large) {
-  const size = large ? 18 : 13;
-  const col = TYPES[slot.type]?.color || '#fff';
-  ctx.shadowBlur = 10; ctx.shadowColor = col;
-  ctx.strokeStyle = col;
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  if (slot.level === 1) {
-    ctx.arc(x, y, size, 0, Math.PI*2);
-  } else if (slot.level === 2) {
-    ctx.strokeRect(x-size, y-size, size*2, size*2);
-  } else if (slot.level === 3) {
-    ctx.moveTo(x, y-size);
-    ctx.lineTo(x+size, y+size*0.7);
-    ctx.lineTo(x-size, y+size*0.7);
-    ctx.closePath();
-  } else if (slot.level >= 4) {
-    // Star (overclocked)
-    for (let s = 0; s < 6; s++) {
-      const a = (s/6)*Math.PI*2 - Math.PI/2;
-      if (s===0) ctx.moveTo(x + Math.cos(a)*size, y + Math.sin(a)*size);
-      else ctx.lineTo(x + Math.cos(a)*size, y + Math.sin(a)*size);
     }
     .small {
       font-size: 13px;
       color: #9ca3af;
-    ctx.closePath();
-    // Pulse
-    ctx.shadowBlur = 20 + Math.sin(frameCount*0.2)*5;
-  }
-  ctx.stroke();
-
-  // Level label
-  ctx.fillStyle = col;
-  ctx.font = `bold ${large ? 11 : 9}px "Orbitron"`;
-  ctx.textAlign = 'center';
-  ctx.fillText(slot.level, x, y + 4);
-
-  // Type indicator dot
-  ctx.beginPath();
-  ctx.arc(x, y - size - 4, 2, 0, Math.PI*2);
-  ctx.fillStyle = col;
-  ctx.fill();
-
-  ctx.textAlign = 'left';
-  ctx.shadowBlur = 0;
-}
-
-// =============================================
-// GAME OVER
-// =============================================
-function gameOver() {
-  meta.highScore = Math.max(meta.highScore, wave);
-  gainPilotXP(wave * 2);
-  saveMeta();
-
-  const el = document.getElementById('overlay');
-  document.getElementById('overlayTitle').textContent = 'DESTROYED';
-  document.getElementById('overlayTitle').style.color = 'var(--red)';
-  document.getElementById('overlaySub').textContent = 'YOUR BASE HAS FALLEN';
-  document.getElementById('overlayStat').textContent = `WAVE ${wave} | HIGH SCORE: WAVE ${meta.highScore} | PILOT RANK: ${meta.pilotRank}`;
-  document.getElementById('overlayBtn').textContent = 'DEPLOY AGAIN';
-  document.getElementById('overlayBtn').onclick = restartGame;
-  el.classList.add('active');
-}
-
-function restartGame() {
-  document.getElementById('overlay').classList.remove('active');
-  gameStarted = true;
-  initGame();
-}
-
-// =============================================
-// SKILL OVERLAY
-// =============================================
-// =============================================
-// SKILL DRAWER
-// =============================================
-let currentSkillTab = 'kinetic';
-let skillPaused = false;
-
-function openSkills() {
-  skillPaused = true;
-  const el = document.getElementById('skillOverlay');
-  el.classList.add('active');
-  renderSkillTab(currentSkillTab);
-  initDrawerSwipe(el);
-}
-
-function closeSkills() {
-  skillPaused = false;
-  document.getElementById('skillOverlay').classList.remove('active');
-}
-
-function initDrawerSwipe(el) {
-  let startY = 0, currentY = 0, draggingDrawer = false;
-  const handle = document.getElementById('skillDragHandle');
-
-  function onStart(e) {
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    draggingDrawer = true;
-    el.style.transition = 'none';
-  }
-  function onMove(e) {
-    if (!draggingDrawer) return;
-    currentY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
-    if (currentY > 0) el.style.transform = `translateY(${currentY}px)`;
-  }
-  function onEnd() {
-    if (!draggingDrawer) return;
-    draggingDrawer = false;
-    el.style.transition = '';
-    if (currentY > 80) {
-      closeSkills();
-      el.style.transform = '';
-    } else {
-      el.style.transform = '';
     }
   </style>
   <!-- Meta Pixel Code -->
@@ -2324,6 +188,26 @@ function initDrawerSwipe(el) {
         Join the early alpha for a community-driven word game where players help build ridiculous stories together.
       </p>
 
+<div id="hud" class="hud" style="display:none;">Tokens: <span id="tokenCount">0</span> | Speed: <span id="speedVal">1</span></div>
+
+<div id="ui">
+    <div id="menu">
+        <h1 style="color:#0ff; text-shadow: 0 0 10px #0ff;">EVOLUTION SIDE-SCROLLER</h1>
+        <button class="btn" onclick="initGame()">NEW GAME</button>
+        <button class="btn" onclick="alert('No save found')">CONTINUE</button>
+        <button class="btn" onclick="location.reload()">RESET</button>
+        <footer>SINGLEFRAMEGAMES | <a href="mailto:singleframegames@gmail.com">SINGLEFRAMEGAMES@GMAIL.COM</a></footer>
+    </div>
+
+    <div id="shop">
+        <h2 style="color:red;">WIPE OUT</h2>
+        <p id="totalTokens">Tokens: 0</p>
+        <button class="btn" onclick="upgradeSpeed()">+ SPEED (5 Tokens)</button>
+        <button id="legBtn" class="btn" onclick="upgradeLegs()">EVOLVE LEGS (20 Tokens)</button>
+        <br>
+        <button class="btn" style="border-color:#fff; color:#fff;" onclick="initGame()">RUN AGAIN</button>
+    </div>
+</div>
       <div class="card signup">
         <h2>Join the Alpha</h2>
         <p>
@@ -2341,6 +225,7 @@ function initDrawerSwipe(el) {
             <input id="name" name="name" type="text" placeholder="Your name or gamer tag" maxlength="50" />
           </div>
 
+<canvas id="gameCanvas"></canvas>
           <button id="submitBtn" type="submit">Join Alpha</button>
           <div id="formMessage" class="message"></div>
         </form>
@@ -2358,18 +243,6 @@ function initDrawerSwipe(el) {
           Pass-Libs is a playful, community-focused word game inspired by Mad Libs, built for laughs, creativity, and weird combinations that only real players would come up with.
         </p>
       </div>
-    currentY = 0;
-  }
-  // Remove old listeners by cloning handle
-  const newHandle = handle.cloneNode(true);
-  handle.parentNode.replaceChild(newHandle, handle);
-  newHandle.addEventListener('touchstart', onStart, { passive: true });
-  newHandle.addEventListener('touchmove',  onMove,  { passive: true });
-  newHandle.addEventListener('touchend',   onEnd);
-  newHandle.addEventListener('mousedown',  onStart);
-  window.addEventListener('mousemove',    onMove);
-  window.addEventListener('mouseup',      onEnd);
-}
 
       <div class="card panel">
         <h3>Why join early?</h3>
@@ -2380,12 +253,6 @@ function initDrawerSwipe(el) {
           <li>See the game grow from the start</li>
         </ul>
       </div>
-function switchTab(tab) {
-  currentSkillTab = tab;
-  document.querySelectorAll('.skill-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`.skill-tab.${tab}`).classList.add('active');
-  renderSkillTab(tab);
-}
 
       <div class="card panel">
         <h3>About SingleFrameGames</h3>
@@ -2393,11 +260,6 @@ function switchTab(tab) {
           SingleFrameGames is an indie game project focused on building creative, experimental, and community-driven games one step at a time.
         </p>
       </div>
-function renderSkillTab(tab) {
-  const grid = document.getElementById('skillGrid');
-  const xpLabel = document.getElementById('xpLabel');
-  const xpFill = document.getElementById('xpFill');
-  grid.innerHTML = '';
 
       <div class="card panel">
         <h3>Support development</h3>
@@ -2407,70 +269,215 @@ function renderSkillTab(tab) {
         <a class="donate-button" href="https://ko-fi.com/singleframegames" target="_blank" rel="noopener noreferrer">Donate</a>
       </div>
     </section>
-  let skills, unlockedMap, xpCurrent, xpNext, color, points;
 
 <div class="footer">
   Built by <a href="mailto:singleframegames@gmail.com">SingleFrameGames</a>
  
 </div>
   </main>
-  if (tab === 'pilot') {
-    skills = PILOT_SKILLS;
-    unlockedMap = meta.pilotSkills;
-    xpCurrent = meta.pilotXP;
-    xpNext = getNextPilotXP();
-    color = '#ffe600';
-    points = meta.skillPoints || 0;
-    xpLabel.textContent = 'PILOT RANK ' + meta.pilotRank + '  |  ' + points + ' SKILL PT' + (points !== 1 ? 'S' : '') + ' AVAILABLE';
-  } else {
-    skills = TURRET_SKILLS[tab];
-    unlockedMap = meta.turretSkills[tab];
-    xpCurrent = meta.turretXP[tab];
-    xpNext = getNextTurretXP(tab);
-    color = TYPES[tab].color;
-    meta.turretSkillPoints = meta.turretSkillPoints || { kinetic:0, energy:0, plasma:0 };
-    points = meta.turretSkillPoints[tab] || 0;
-    xpLabel.textContent = tab.toUpperCase() + ' RANK ' + meta.turretRank[tab] + '  |  ' + points + ' SKILL PT' + (points !== 1 ? 'S' : '') + ' AVAILABLE';
-  }
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
-  xpFill.style.width = Math.min(100, (xpCurrent / xpNext) * 100) + '%';
-  xpFill.style.background = color;
-  xpFill.style.boxShadow = '0 0 8px ' + color;
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let tokens = 0;
+    let speedLevel = 1;
+    let hasLegs = false;
+    let gameActive = false;
 
-  skills.forEach(skill => {
-    const isUnlocked = unlockedMap[skill.id];
-    const reqMet = !skill.req || unlockedMap[skill.req];
-    const canAfford = points >= 1;
-    const available = !isUnlocked && reqMet;
+    // Player Object
+    const player = {
+        x: 100, y: 0, r: 20,
+        vx: 0, vy: 0,
+        rotation: 0,
+        grounded: false
+    };
+
+    let platforms = [];
+    let collectibles = [];
+    let cameraX = 0;
+    const gravity = 0.5;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    function initGame() {
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('shop').style.display = 'none';
+        document.getElementById('hud').style.display = 'block';
+        
+        player.y = canvas.height / 2;
+        player.vx = 2 + (speedLevel * 0.5);
+        player.vy = 0;
+        cameraX = 0;
+        platforms = [];
+        collectibles = [];
+        
+        // Initial Floor
+        for(let i=0; i<5; i++) spawnPlatform(i * 400);
+        
+        gameActive = true;
+        requestAnimationFrame(gameLoop);
+    }
+
+    function spawnPlatform(x) {
+        const width = 300 + Math.random() * 200;
+        const y = canvas.height - 100 - (Math.random() * 150);
+        const isRamp = Math.random() > 0.7;
+        
+        platforms.push({ x, y, w: width, h: 50, isRamp });
+        
+        // Spawn Token
+        collectibles.push({ x: x + width/2, y: y - 50, gathered: false });
+    }
+
+    function upgradeSpeed() {
+        if(tokens >= 5) { tokens -= 5; speedLevel++; updateUI(); }
+    }
+
+    function upgradeLegs() {
+        if(tokens >= 20 && !hasLegs) { tokens -= 20; hasLegs = true; updateUI(); document.getElementById('legBtn').innerText = "LEGS: EQUIPPED"; }
+    }
+
+    function updateUI() {
+        document.getElementById('tokenCount').innerText = tokens;
+        document.getElementById('totalTokens').innerText = "Tokens: " + tokens;
+        document.getElementById('speedVal').innerText = speedLevel;
+    }
+
+    const keys = {};
+    window.onkeydown = e => keys[e.code] = true;
+    window.onkeyup = e => keys[e.code] = false;
+
+    function gameLoop() {
+        if(!gameActive) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Physics
+        player.vy += gravity;
+        player.y += player.vy;
+        player.x += player.vx;
+        player.rotation += player.vx * 0.05;
+        
+        cameraX = player.x - 100;
+        
+        player.grounded = false;
+        platforms.forEach(p => {
+            // Collision Detection
+            if(player.x + player.r > p.x && player.x - player.r < p.x + p.w) {
+                let floorY = p.y;
+                if(p.isRamp) {
+                    // Simple Ramp Logic
+                    let relX = (player.x - p.x) / p.w;
+                    floorY = p.y - (relX * 60);
+                }
+                
+                if(player.y + player.r > floorY && player.y < floorY + p.h) {
+                    player.y = floorY - player.r;
+                    player.vy = p.isRamp ? -2 : 0; // Pop up slightly on ramps
+                    player.grounded = true;
+                }
+            }
+        });
+
+        // Jump (Legs only)
+        if(hasLegs && keys['Space'] && player.grounded) {
+            player.vy = -12;
+            player.grounded = false;
+        }
+
+        // Collect tokens
+        collectibles.forEach(c => {
+            if(!c.gathered && Math.hypot(player.x - c.x, player.y - c.y) < 30) {
+                c.gathered = true;
+                tokens++;
+                updateUI();
+            }
+        });
+
+        // Infinite World Gen
+        if(platforms[platforms.length-1].x < player.x + canvas.width) {
+            spawnPlatform(platforms[platforms.length-1].x + 400 + Math.random() * 100);
+        }
+
+        // Draw World
+        ctx.save();
+        ctx.translate(-cameraX, 0);
+        
+        platforms.forEach(p => {
+            ctx.fillStyle = p.isRamp ? '#555' : '#222';
+            ctx.beginPath();
+            if(p.isRamp) {
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x + p.w, p.y - 60);
+                ctx.lineTo(p.x + p.w, p.y + p.h);
+                ctx.lineTo(p.x, p.y + p.h);
+            } else {
+                ctx.rect(p.x, p.y, p.w, p.h);
+            }
+            ctx.fill();
+        });
+
+        collectibles.forEach(c => {
+            if(!c.gathered) {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 8, 0, Math.PI*2);
+                ctx.fill();
+            }
+        });
+
+        // Draw Player
+        ctx.translate(player.x, player.y);
+        ctx.rotate(player.rotation);
+        ctx.strokeStyle = hasLegs ? '#f0f' : '#0ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, player.r, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Draw Legs if evolved
+        if(hasLegs) {
+            ctx.rotate(-player.rotation); // Keep legs vertical-ish
+            ctx.fillStyle = '#f0f';
+            let walk = Math.sin(Date.now() * 0.01) * 10;
+            ctx.fillRect(-10, 15, 5, 10 + walk);
+            ctx.fillRect(5, 15, 5, 10 - walk);
+        }
+        ctx.restore();
+
+        // Game Over
+        if(player.y > canvas.height) {
+            gameActive = false;
+            document.getElementById('ui').style.display = 'flex';
+            document.getElementById('shop').style.display = 'block';
+        } else {
+            requestAnimationFrame(gameLoop);
+        }
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
 
   const form = document.getElementById("alphaForm");
   const emailInput = document.getElementById("email");
   const nameInput = document.getElementById("name");
   const submitBtn = document.getElementById("submitBtn");
   const formMessage = document.getElementById("formMessage");
-    const node = document.createElement('div');
-    node.className = 'skill-node ' + (isUnlocked ? 'unlocked' : available ? 'available' : 'locked');
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
-    const costStr = isUnlocked ? 'UNLOCKED' : (available && canAfford ? '1 SKILL PT' : reqMet ? 'NEED SKILL PT' : 'LOCKED');
-    const costCol = isUnlocked ? '#00ff88' : (available && canAfford) ? '#ffe600' : 'rgba(255,255,255,0.25)';
 
     const email = emailInput.value.trim();
     const name = nameInput.value.trim();
-    node.innerHTML =
-      '<div class="skill-node-name" style="color:' + (isUnlocked ? '#00ff88' : color) + '">' + skill.name + '</div>' +
-      '<div class="skill-node-desc">' + skill.desc + '</div>' +
-      '<div class="skill-node-cost" style="color:' + costCol + '">' + costStr + '</div>';
 
     if (!SCRIPT_URL || SCRIPT_URL.includes("REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL")) {
       formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
       formMessage.className = "message bad";
       return;
-    if (available && canAfford) {
-      node.onclick = () => unlockSkill(tab, skill);
     }
 
     submitBtn.disabled = true;
@@ -2490,43 +497,12 @@ function renderSkillTab(tab) {
           source: "Pass-Libs Landing Page"
         })
       });
-    grid.appendChild(node);
-  });
-}
 
       const text = await response.text();
-function unlockSkill(tab, skill) {
-  if (tab === 'pilot') {
-    if ((meta.skillPoints || 0) < 1) return;
-    meta.skillPoints--;
-    meta.pilotSkills[skill.id] = true;
-  } else {
-    meta.turretSkillPoints = meta.turretSkillPoints || { kinetic:0, energy:0, plasma:0 };
-    if ((meta.turretSkillPoints[tab] || 0) < 1) return;
-    meta.turretSkillPoints[tab]--;
-    meta.turretSkills[tab][skill.id] = true;
-  }
-  saveMeta();
-  renderSkillTab(tab);
 
       if (!response.ok) {
         throw new Error(text || "Signup failed.");
       }
-  // Apply immediate in-game effects
-  if (typeof rails !== 'undefined') {
-    if (skill.effect === 'railSlot') rails = [...rails, null];
-    if (skill.effect === 'hangarSlot') hangar = [...hangar, null, null];
-  }
-}
-
-// -- MAIN LOOP --
-let gameStarted = false;
-
-function startGame() {
-  document.getElementById('splash').style.display = 'none';
-  gameStarted = true;
-  initGame();
-}
 
       form.reset();
       formMessage.textContent = "You're on the list. Thanks for joining the Pass-Libs alpha.";
@@ -2538,118 +514,8 @@ function startGame() {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Join Alpha";
-function gameLoop() {
-  if (gameStarted && !skillPaused) {
-    // Heat cooldown
-    if (!beamActive) {
-      const coolRate = 0.5 * (1 + (meta.turretSkills.energy['e7'] ? 0.25 : 0) + (meta.pilotSkills['pr3'] ? 0.3 : 0));
-      heat = Math.max(0, heat - coolRate);
-      if (heat === 0) overheated = false;
     }
-    update();
-    draw();
-  }
-  requestAnimationFrame(gameLoop);
-}
-
-// =============================================
-// MENU FUNCTIONS
-// =============================================
-function splashTab(tab) {
-  document.getElementById('panelPlay').style.display   = tab === 'play'   ? 'flex'  : 'none';
-  document.getElementById('panelSkills').style.display = tab === 'skills' ? 'flex'  : 'none';
-  document.getElementById('panelHow').style.display    = tab === 'how'    ? 'block' : 'none';
-
-  ['tabPlay','tabSkills','tabHow'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const active = (id === 'tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-    el.style.background = active ? 'var(--cyan)' : 'transparent';
-    el.style.color      = active ? '#000'        : 'var(--cyan)';
   });
-
-  if (tab === 'skills') menuSkillTab('kinetic');
-}
-
-let menuCurrentTab = 'kinetic';
-function menuSkillTab(tab) {
-  menuCurrentTab = tab;
-  ['kinetic','energy','plasma','pilot'].forEach(t => {
-    const el = document.getElementById('msk' + t.charAt(0).toUpperCase() + t.slice(1));
-    if (el) el.classList.toggle('active', t === tab);
-  });
-  renderMenuSkillTab(tab);
-}
-
-function renderMenuSkillTab(tab) {
-  const grid   = document.getElementById('menuSkillGrid');
-  const label  = document.getElementById('menuXpLabel');
-  const fill   = document.getElementById('menuXpFill');
-  if (!grid) return;
-  grid.innerHTML = '';
-
-  let skills, unlockedMap, xpCurrent, xpNext, color, points;
-  if (tab === 'pilot') {
-    skills = PILOT_SKILLS; unlockedMap = meta.pilotSkills;
-    xpCurrent = meta.pilotXP; xpNext = getNextPilotXP();
-    color = '#ffe600'; points = meta.skillPoints || 0;
-    label.textContent = 'PILOT RANK ' + meta.pilotRank + '  |  ' + points + ' SKILL PT' + (points !== 1 ? 'S' : '') + ' AVAILABLE';
-  } else {
-    skills = TURRET_SKILLS[tab]; unlockedMap = meta.turretSkills[tab];
-    xpCurrent = meta.turretXP[tab]; xpNext = getNextTurretXP(tab);
-    color = TYPES[tab].color;
-    meta.turretSkillPoints = meta.turretSkillPoints || { kinetic:0, energy:0, plasma:0 };
-    points = meta.turretSkillPoints[tab] || 0;
-    label.textContent = tab.toUpperCase() + ' RANK ' + meta.turretRank[tab] + '  |  ' + points + ' SKILL PT' + (points !== 1 ? 'S' : '') + ' AVAILABLE';
-  }
-  fill.style.width = Math.min(100, (xpCurrent / xpNext) * 100) + '%';
-  fill.style.background = color;
-
-  skills.forEach(skill => {
-    const isUnlocked = unlockedMap[skill.id];
-    const reqMet = !skill.req || unlockedMap[skill.req];
-    const canAfford = points >= 1;
-    const available = !isUnlocked && reqMet;
-    const node = document.createElement('div');
-    node.className = 'skill-node ' + (isUnlocked ? 'unlocked' : available ? 'available' : 'locked');
-    const costCol = isUnlocked ? '#00ff88' : (available && canAfford) ? '#ffe600' : 'rgba(255,255,255,0.25)';
-    const costStr = isUnlocked ? 'UNLOCKED' : (available && canAfford ? '1 SKILL PT' : reqMet ? 'NEED PT' : 'LOCKED');
-    node.innerHTML =
-      '<div class="skill-node-name" style="color:' + (isUnlocked ? '#00ff88' : color) + '">' + skill.name + '</div>' +
-      '<div class="skill-node-desc">' + skill.desc + '</div>' +
-      '<div class="skill-node-cost" style="color:' + costCol + '">' + costStr + '</div>';
-    if (available && canAfford) node.onclick = () => { unlockSkill(tab, skill); renderMenuSkillTab(tab); };
-    grid.appendChild(node);
-  });
-}
-
-function quitToMenu() {
-  gameStarted = false;
-  skillPaused = false;
-  // Reset game state cleanly
-  enemies = []; bullets = []; particles = []; floaters = [];
-  boss = null; dragging = null; beamActive = false; selectedSlot = null;
-  phase = 'prep';
-  document.getElementById('bossHpBar').style.display = 'none';
-  document.getElementById('overlay').classList.remove('active');
-  document.getElementById('skillOverlay').classList.remove('active');
-  // Update splash stats and show
-  document.getElementById('splashRank').textContent = meta.pilotRank;
-  document.getElementById('splashHigh').textContent = meta.highScore || '--';
-  splashTab('play');
-  document.getElementById('splash').style.display = 'flex';
-}
-
-function resetMeta() {
-  if (!confirm('Reset ALL progress? This cannot be undone.')) return;
-  localStorage.removeItem(SAVE_KEY);
-  meta = loadMeta();
-  document.getElementById('splashRank').textContent = meta.pilotRank;
-  document.getElementById('splashHigh').textContent = '--';
-}
-document.getElementById('splashRank').textContent = meta.pilotRank;
-document.getElementById('splashHigh').textContent = meta.highScore || '--';
-requestAnimationFrame(gameLoop);
 </script>
 </body>
 </html>
