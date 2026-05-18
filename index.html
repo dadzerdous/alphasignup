@@ -1,6 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pass-Libs Alpha | Single Frame Games</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #1f2847 0%, #111827 100%);
+      color: #f3f4f6;
+      line-height: 1.5;
+    }
+    a { color: #93c5fd; }
+    .wrap {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      padding: 72px 0 40px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1;
+    }
+    .sub {
+      max-width: 700px;
+      margin: 0 auto 28px;
+      font-size: clamp(18px, 2.5vw, 22px);
+      color: #d1d5db;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+    }
+    .signup {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px;
+      text-align: left;
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NEON STRIKE: MERGE</title>
@@ -977,23 +1030,18 @@ function buildWaveEnemyDef() {
   const isBoss = wave % 5 === 0;
   if (isBoss) return; // boss handled separately
 
-  // Which cycle are we in? Every 5 waves repeats, HP doubles each cycle
-  const cycle    = Math.floor((wave - 1) / 5);       // 0, 1, 2, ...
-  const waveInCycle = ((wave - 1) % 5) + 1;          // 1-5 repeating
-  const hpScale  = Math.pow(2, cycle);               // x1, x2, x4, x8...
-
-  // Count and types based on position within cycle (not raw wave)
-  const count = Math.min(4 + (waveInCycle - 1) * 2, 14) + cycle * 2; // base ramps, then +2 per cycle
-  const types = waveInCycle < 2 ? ['blue'] :
-                waveInCycle < 3 ? ['blue','purple'] :
-                waveInCycle < 4 ? ['blue','purple','yellow'] :
-                                  ['blue','purple','yellow','red','orange'];
+  // Scale: wave 1 = 4 enemies, +2 per wave, max 30
+  const count = Math.min(4 + (wave - 1) * 2, 30);
+  const types = wave < 3 ? ['blue'] :
+                wave < 5 ? ['blue','purple'] :
+                wave < 8 ? ['blue','purple','yellow'] :
+                           ['blue','purple','yellow','red','orange'];
 
   for (let i = 0; i < count; i++) {
     const tId = types[Math.floor(Math.random() * types.length)];
     const def = ENEMY_TYPES.find(e => e.id === tId);
-    const delay = 60 + i * Math.max(15, 80 - waveInCycle * 12);
-    waveEnemyDef.push({ ...def, delay, spawned: false, hpScale });
+    const delay = 60 + i * Math.max(20, 80 - wave * 3); // frames
+    waveEnemyDef.push({ ...def, delay, spawned: false });
   }
   enemiesThisWave = count;
   enemiesSpawned = 0;
@@ -1072,6 +1120,10 @@ canvas.addEventListener('pointerdown', e => {
       dragging = slot; dragFromIdx = i; dragFromHangar = true;
       hangar[i] = null; picked = true;
     }
+    .signup h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 24px;
   });
 
   // Try drag from rail
@@ -1159,6 +1211,9 @@ canvas.addEventListener('pointerup', e => {
         }
       });
     }
+    .signup p {
+      margin-top: 0;
+      color: #d1d5db;
 
     if (!dropped) returnToHangar(dragging);
     dragging = null;
@@ -1362,6 +1417,10 @@ function update() {
         if (prepCountdown <= 0) startCombatPhase();
       }
     }
+    form {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
     updateParticles();
     updateFloaters();
     // HUD still updates during prep so credits are visible
@@ -1384,6 +1443,9 @@ function update() {
       def.spawned = true;
       enemiesSpawned++;
     }
+    label {
+      font-size: 14px;
+      font-weight: bold;
   });
 
   // Beam
@@ -1408,6 +1470,14 @@ function update() {
       ionPulseTimer = 0;
       enemies.forEach(en => { en.hp -= 8; spawnParticles(en.x, en.y, '#cc00ff', 4); });
     }
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(17,24,39,0.7);
+      color: #fff;
+      font-size: 16px;
   }
 
   // Particles & floaters
@@ -1462,6 +1532,17 @@ function updateBeam() {
       en.hp -= dmg;
       if (Math.random() < 0.1) spawnParticles(en.x, en.y, '#ff00cc', 1, 3);
     }
+    input::placeholder { color: #9ca3af; }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #60a5fa;
+      color: #0f172a;
+      transition: transform 0.15s ease, opacity 0.15s ease;
   });
   if (boss && Math.hypot(boss.x - beamX, boss.y - beamY) < beamRadius * 1.5) {
     boss.hp -= beamDmg * 0.5;
@@ -1505,6 +1586,12 @@ function updateTurrets() {
         }
       }
     }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .message {
+      min-height: 24px;
+      font-size: 14px;
+      margin-top: 6px;
   });
 }
 
@@ -1537,6 +1624,13 @@ function updateBullets() {
     if (b.life <= 0 || b.x < 0 || b.x > W || b.y < 0 || b.y > H) {
       bullets.splice(i, 1); continue;
     }
+    .good { color: #86efac; }
+    .bad { color: #fca5a5; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      padding: 40px 0;
 
     let bulletDead = false;
     for (let j = enemies.length-1; j >= 0; j--) {
@@ -1571,6 +1665,8 @@ function updateBullets() {
         break;
       }
     }
+    .panel {
+      padding: 22px;
 
     if (!bulletDead && boss && Math.hypot(boss.x - b.x, boss.y - b.y) < boss.size) {
       const dmg = calcDamage(b, boss);
@@ -1578,6 +1674,10 @@ function updateBullets() {
       spawnParticles(boss.x, boss.y, TYPES[b.type].color, 3, 5);
       bullets.splice(i, 1);
     }
+    .panel h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 21px;
   }
 }
 
@@ -1591,6 +1691,9 @@ function updateEnemies() {
       en.hp -= en.burnDmg;
       if (meta.turretSkills.plasma['p5']) en.slowTimer = 30;
     }
+    .panel p,
+    .panel li {
+      color: #d1d5db;
 
     // Check death after burn
     if (en.hp <= 0) { killEnemy(i); continue; }
@@ -1609,6 +1712,9 @@ function updateEnemies() {
       spawnParticles(en.x, getPanelTop(), '#ff2244', 8, 5);
       if (shields <= 0) gameOver();
     }
+    ul {
+      padding-left: 18px;
+      margin-bottom: 0;
   }
 }
 
@@ -1639,6 +1745,11 @@ function updateBoss() {
       const def = ENEMY_TYPES[0];
       spawnEnemy({ ...def, x: boss.x + (i-1)*80, delay:0 });
     }
+    .footer {
+      padding: 20px 0 56px;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
   }
 
   // Burn
@@ -1687,15 +1798,13 @@ function showBossReward() {
 }
 
 function spawnEnemy(def) {
-  const speed = (def.speedMult * (0.8 + wave * 0.04)) || 1;
-  const hpScale = def.hpScale || 1;
-  const baseHp = def.hpMult * (3 + wave * 0.6) * hpScale;
+  const speed = (def.speedMult * (0.8 + wave * 0.08)) || 1;
   enemies.push({
     ...def,
     x: def.x || (60 + Math.random() * (W - 120)),
     y: def.y || -20,
-    hp: baseHp,
-    maxHp: baseHp,
+    hp: (def.hpMult * (3 + wave * 1.2)),
+    maxHp: (def.hpMult * (3 + wave * 1.2)),
     speed,
     angle: Math.random() * Math.PI * 2,
     rotSpeed: (Math.random() * 0.03 + 0.01) * (Math.random() < 0.5 ? 1 : -1),
@@ -2006,6 +2115,15 @@ function drawEnemy(en) {
       ctx.moveTo(Math.cos(a)*14, Math.sin(a)*14);
       ctx.lineTo(Math.cos(a2)*6, Math.sin(a2)*6);
     }
+    .donate-button {
+      display: inline-block;
+      text-decoration: none;
+      background: #f59e0b;
+      color: #111827;
+      font-weight: bold;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 8px;
     ctx.stroke();
   }
   ctx.restore();
@@ -2081,6 +2199,9 @@ function drawTurret(x, y, slot, large) {
       if (s===0) ctx.moveTo(x + Math.cos(a)*size, y + Math.sin(a)*size);
       else ctx.lineTo(x + Math.cos(a)*size, y + Math.sin(a)*size);
     }
+    .small {
+      font-size: 13px;
+      color: #9ca3af;
     ctx.closePath();
     // Pulse
     ctx.shadowBlur = 20 + Math.sin(frameCount*0.2)*5;
@@ -2173,6 +2294,70 @@ function initDrawerSwipe(el) {
     } else {
       el.style.transform = '';
     }
+  </style>
+  <!-- Meta Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+
+  fbq('init', '119211728144504');
+  fbq('track', 'PageView');
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none"
+       src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID_HERE&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel Code -->
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="badge">SingleFrameGames Alpha Test</div>
+      <h1>Pass-Libs</h1>
+      <p class="sub">
+        Join the early alpha for a community-driven word game where players help build ridiculous stories together.
+      </p>
+
+      <div class="card signup">
+        <h2>Join the Alpha</h2>
+        <p>
+          Sign up to get updates, test invites, and a chance to help shape Pass-Libs before wider release.
+        </p>
+
+        <form id="alphaForm">
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
+
+          <div>
+            <label for="name">Name or handle (optional)</label>
+            <input id="name" name="name" type="text" placeholder="Your name or gamer tag" maxlength="50" />
+          </div>
+
+          <button id="submitBtn" type="submit">Join Alpha</button>
+          <div id="formMessage" class="message"></div>
+        </form>
+
+        <p class="small">
+          By joining, you agree to receive alpha test updates for Pass-Libs. You can stop participating anytime.
+        </p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card panel">
+        <h3>What is Pass-Libs?</h3>
+        <p>
+          Pass-Libs is a playful, community-focused word game inspired by Mad Libs, built for laughs, creativity, and weird combinations that only real players would come up with.
+        </p>
+      </div>
     currentY = 0;
   }
   // Remove old listeners by cloning handle
@@ -2186,6 +2371,15 @@ function initDrawerSwipe(el) {
   window.addEventListener('mouseup',      onEnd);
 }
 
+      <div class="card panel">
+        <h3>Why join early?</h3>
+        <ul>
+          <li>Get early access before public release</li>
+          <li>Help shape the features and direction</li>
+          <li>Be part of the first testing group</li>
+          <li>See the game grow from the start</li>
+        </ul>
+      </div>
 function switchTab(tab) {
   currentSkillTab = tab;
   document.querySelectorAll('.skill-tab').forEach(t => t.classList.remove('active'));
@@ -2193,14 +2387,33 @@ function switchTab(tab) {
   renderSkillTab(tab);
 }
 
+      <div class="card panel">
+        <h3>About SingleFrameGames</h3>
+        <p>
+          SingleFrameGames is an indie game project focused on building creative, experimental, and community-driven games one step at a time.
+        </p>
+      </div>
 function renderSkillTab(tab) {
   const grid = document.getElementById('skillGrid');
   const xpLabel = document.getElementById('xpLabel');
   const xpFill = document.getElementById('xpFill');
   grid.innerHTML = '';
 
+      <div class="card panel">
+        <h3>Support development</h3>
+        <p>
+          Donations are optional, but they help support development time, testing, and future features.
+        </p>
+        <a class="donate-button" href="https://ko-fi.com/singleframegames" target="_blank" rel="noopener noreferrer">Donate</a>
+      </div>
+    </section>
   let skills, unlockedMap, xpCurrent, xpNext, color, points;
 
+<div class="footer">
+  Built by <a href="mailto:singleframegames@gmail.com">SingleFrameGames</a>
+ 
+</div>
+  </main>
   if (tab === 'pilot') {
     skills = PILOT_SKILLS;
     unlockedMap = meta.pilotSkills;
@@ -2220,6 +2433,8 @@ function renderSkillTab(tab) {
     xpLabel.textContent = tab.toUpperCase() + ' RANK ' + meta.turretRank[tab] + '  |  ' + points + ' SKILL PT' + (points !== 1 ? 'S' : '') + ' AVAILABLE';
   }
 
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4PRKo3aTIG1tnT5bUtcI6K2CJVn9nnG9G7kENwHO4cCS9htGEsRJKCtiVnqDdK5Bw/exec";
   xpFill.style.width = Math.min(100, (xpCurrent / xpNext) * 100) + '%';
   xpFill.style.background = color;
   xpFill.style.boxShadow = '0 0 8px ' + color;
@@ -2230,25 +2445,56 @@ function renderSkillTab(tab) {
     const canAfford = points >= 1;
     const available = !isUnlocked && reqMet;
 
+  const form = document.getElementById("alphaForm");
+  const emailInput = document.getElementById("email");
+  const nameInput = document.getElementById("name");
+  const submitBtn = document.getElementById("submitBtn");
+  const formMessage = document.getElementById("formMessage");
     const node = document.createElement('div');
     node.className = 'skill-node ' + (isUnlocked ? 'unlocked' : available ? 'available' : 'locked');
 
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
     const costStr = isUnlocked ? 'UNLOCKED' : (available && canAfford ? '1 SKILL PT' : reqMet ? 'NEED SKILL PT' : 'LOCKED');
     const costCol = isUnlocked ? '#00ff88' : (available && canAfford) ? '#ffe600' : 'rgba(255,255,255,0.25)';
 
+    const email = emailInput.value.trim();
+    const name = nameInput.value.trim();
     node.innerHTML =
       '<div class="skill-node-name" style="color:' + (isUnlocked ? '#00ff88' : color) + '">' + skill.name + '</div>' +
       '<div class="skill-node-desc">' + skill.desc + '</div>' +
       '<div class="skill-node-cost" style="color:' + costCol + '">' + costStr + '</div>';
 
+    if (!SCRIPT_URL || SCRIPT_URL.includes("REPLACE_WITH_YOUR_GOOGLE_APPS_SCRIPT_URL")) {
+      formMessage.textContent = "Setup is not finished yet. Add your Google Apps Script URL in the HTML file first.";
+      formMessage.className = "message bad";
+      return;
     if (available && canAfford) {
       node.onclick = () => unlockSkill(tab, skill);
     }
 
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Joining...";
+    formMessage.textContent = "";
+    formMessage.className = "message";
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          source: "Pass-Libs Landing Page"
+        })
+      });
     grid.appendChild(node);
   });
 }
 
+      const text = await response.text();
 function unlockSkill(tab, skill) {
   if (tab === 'pilot') {
     if ((meta.skillPoints || 0) < 1) return;
@@ -2263,6 +2509,9 @@ function unlockSkill(tab, skill) {
   saveMeta();
   renderSkillTab(tab);
 
+      if (!response.ok) {
+        throw new Error(text || "Signup failed.");
+      }
   // Apply immediate in-game effects
   if (typeof rails !== 'undefined') {
     if (skill.effect === 'railSlot') rails = [...rails, null];
@@ -2279,6 +2528,16 @@ function startGame() {
   initGame();
 }
 
+      form.reset();
+      formMessage.textContent = "You're on the list. Thanks for joining the Pass-Libs alpha.";
+      formMessage.className = "message good";
+    } catch (error) {
+      formMessage.textContent = "Something went wrong. Please try again in a moment.";
+      formMessage.className = "message bad";
+      console.error(error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Join Alpha";
 function gameLoop() {
   if (gameStarted && !skillPaused) {
     // Heat cooldown
